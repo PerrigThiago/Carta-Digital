@@ -167,7 +167,7 @@ public class ProductoServicio {
             if (grupo == null || grupo.trim().isEmpty()) {
                 return List.of();
             }
-            return productoRepositorio.buscarPorGrupo(grupo);
+            return productoRepositorio.findByGrupo(grupo);
         } catch (Exception excepcion) {
             System.err.println("Error al buscar por grupo: " + excepcion.getMessage());
             return List.of();
@@ -176,7 +176,7 @@ public class ProductoServicio {
     
     public List<Producto> obtenerProductosDisponibles() {
         try {
-            return productoRepositorio.buscarPorDisponibilidad(true);
+            return productoRepositorio.findByDisponibilidad(true);
         } catch (Exception excepcion) {
             System.err.println("Error al obtener productos disponibles: " + excepcion.getMessage());
             return List.of();
@@ -188,7 +188,7 @@ public class ProductoServicio {
             if (precioMinimo == null || precioMaximo == null || precioMinimo < 0 || precioMaximo < precioMinimo) {
                 return List.of();
             }
-            return productoRepositorio.buscarPorPrecioEntre(precioMinimo, precioMaximo);
+            return productoRepositorio.findByPrecioBetween(precioMinimo, precioMaximo);
         } catch (Exception excepcion) {
             System.err.println("Error al buscar por rango de precio: " + excepcion.getMessage());
             return List.of();
@@ -200,7 +200,7 @@ public class ProductoServicio {
             if (nombre == null || nombre.trim().isEmpty()) {
                 return List.of();
             }
-            return productoRepositorio.buscarPorNombre(nombre);
+            return productoRepositorio.findByNombreContainingIgnoreCase(nombre);
         } catch (Exception excepcion) {
             System.err.println("Error al buscar por nombre: " + excepcion.getMessage());
             return List.of();
@@ -209,7 +209,7 @@ public class ProductoServicio {
     
     public List<Producto> obtenerProductosSinStock() {
         try {
-            return productoRepositorio.filtrarCantidadSinStock(0);
+            return productoRepositorio.findByCantidadLessThanEqual(0);
         } catch (Exception excepcion) {
             System.err.println("Error al obtener productos sin stock: " + excepcion.getMessage());
             return List.of();

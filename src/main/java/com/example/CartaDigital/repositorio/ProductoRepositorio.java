@@ -14,31 +14,31 @@ public interface ProductoRepositorio extends JpaRepository<Producto, Long> {
     // Métodos básicos automáticos: save(), findById(), findAll(), deleteById(), etc
 
     // 1. Buscar productos por grupo
-    List<Producto> buscarPorGrupo(String grupo);
+    List<Producto> findByGrupo(String grupo);
 
     // 2. Buscar productos por disponibilidad
-    List<Producto> buscarPorDisponibilidad(Boolean disponibilidad);
+    List<Producto> findByDisponibilidad(Boolean disponibilidad);
 
     // 3. Buscar productos por rango de precios
-    List<Producto> buscarPorPrecioEntre(Integer precioMinimo, Integer precioMaximo);
+    List<Producto> findByPrecioBetween(Integer precioMinimo, Integer precioMaximo);
 
-    // 4. Buscar productos por nombres
-    List<Producto> buscarPorNombre(String nombre);
+    // 4. Buscar productos por nombres (contains, ignore case)
+    List<Producto> findByNombreContainingIgnoreCase(String nombre);
 
-    // 5. Filtrar productos sin stock 
-    List<Producto> filtrarCantidadSinStock(Integer cantidad);
+    // 5. Filtrar productos sin/bajo stock
+    List<Producto> findByCantidadLessThanEqual(Integer cantidad);
 
-    // 6. Filtrar por precio mínimo
-    List<Producto> filtrarPorPrecioMinimo(Integer precioMinimo);
+    // 6. Filtrar por precio mínimo/máximo
+    List<Producto> findByPrecioGreaterThanEqual(Integer precioMinimo);
 
     // 7. Filtrar por precio máximo
-    List<Producto> filtrarPorPrecioMaximo(Integer precioMaximo);
+    List<Producto> findByPrecioLessThanEqual(Integer precioMaximo);
 
     // 8. Buscar productos por usuario (administrador)
-    List<Producto> buscarUsuarioPorId(Long usuarioId);
+    List<Producto> findByUsuarioId(Long usuarioId);
 
     // 9. Buscar productos por grupo y disponibilidad
-    List<Producto> buscarPorGrupoYDisponibilidad(String grupo, Boolean disponibilidad);
+    List<Producto> findByGrupoAndDisponibilidad(String grupo, Boolean disponibilidad);
 
     // 10. Consulta personalizada para productos con stock bajo (SIN parámetros)
     @Query("SELECT p FROM Producto p WHERE p.cantidad <= 5 AND p.disponibilidad = true")
