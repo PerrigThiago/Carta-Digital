@@ -167,7 +167,7 @@ public class ProductoControlador {
     @GetMapping("/usuario/{usuarioId}")
     public ResponseEntity<List<Producto>> obtenerProductosPorUsuario(@PathVariable Long usuarioId) {
 
-        // TODO: Implementar este método en el Service
+        // Implementar este método en el Service
         return ResponseEntity.ok(List.of());
     }
     
