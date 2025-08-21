@@ -46,7 +46,7 @@ public class CarritoProductoServicio {
                 cp.setCarrito(carritoOpt.get());
                 cp.setProducto(productoOpt.get());
                 cp.setCantidad(cantidad);
-                cp.setPrecio(productoOpt.get().getPrecio());
+                cp.setPrecio((Integer) productoOpt.get().getPrecio());
             }
             carritoProductoRepositorio.save(cp);
             return true;

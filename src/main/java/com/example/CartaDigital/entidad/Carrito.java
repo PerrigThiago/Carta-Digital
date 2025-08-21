@@ -2,6 +2,7 @@ package com.example.CartaDigital.entidad;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -21,10 +22,12 @@ public class Carrito {
     // RELACIÓN: Muchos carritos pertenecen a un cliente
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_cliente", nullable = false)
+    @JsonIgnore
     private Cliente cliente;
     
     // RELACIÓN: Un carrito puede tener muchos productos
     @OneToMany(mappedBy = "carrito", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<CarritoProducto> carritoProductos;
     
     // MÉTODO PARA CALCULAR EL TOTAL DEL CARRITO

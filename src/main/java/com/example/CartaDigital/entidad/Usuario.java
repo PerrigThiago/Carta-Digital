@@ -2,6 +2,7 @@ package com.example.CartaDigital.entidad;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
 
 @Entity
@@ -22,5 +23,6 @@ public class Usuario {
     
     // RELACIÓN: Un usuario puede tener muchos productos
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Producto> productos;
 }

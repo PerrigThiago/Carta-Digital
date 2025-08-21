@@ -2,6 +2,8 @@ package com.example.CartaDigital.entidad;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
 
 @Entity
@@ -41,13 +43,16 @@ public class Producto {
     // RELACIÓN: Muchos productos pertenecen a un usuario
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario", nullable = false)
+    @JsonIgnore
     private Usuario usuario;
     
     // RELACIÓN: Un producto puede estar en muchos carritos
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<CarritoProducto> carritoProductos;
     
     // RELACIÓN: Un producto puede estar en muchos pedidos
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<PedidoProducto> pedidoProductos;
 }

@@ -1,7 +1,9 @@
 package com.example.CartaDigital.servicio;
 
 import com.example.CartaDigital.entidad.Producto;
+import com.example.CartaDigital.entidad.Usuario;
 import com.example.CartaDigital.repositorio.ProductoRepositorio;
+import com.example.CartaDigital.repositorio.UsuarioRepositorio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,9 @@ public class ProductoServicio {
     
     @Autowired
     private ProductoRepositorio productoRepositorio;
+    
+    @Autowired
+    private UsuarioRepositorio usuarioRepositorio;
     
     // 1. CREAR PRODUCTO
     public Producto crearProducto(Producto producto) {
@@ -36,6 +41,23 @@ public class ProductoServicio {
             
             if (producto.getGrupo() == null || producto.getGrupo().trim().isEmpty()) {
                 return null;
+            }
+            
+            // Asignar usuario admin automáticamente si no se especifica
+            if (producto.getUsuario() == null) {
+                try {
+                    Usuario admin = usuarioRepositorio.findByUsuario("admin");
+                    if (admin != null) {
+                        producto.setUsuario(admin);
+                        System.out.println("Usuario admin asignado: " + admin.getId());
+                    } else {
+                        System.err.println("ERROR: No se encontró usuario 'admin' en la base de datos");
+                        return null; // No se puede crear producto sin usuario
+                    }
+                } catch (Exception e) {
+                    System.err.println("ERROR al buscar usuario admin: " + e.getMessage());
+                    return null;
+                }
             }
             
             // Lógica de negocio que pensaste:

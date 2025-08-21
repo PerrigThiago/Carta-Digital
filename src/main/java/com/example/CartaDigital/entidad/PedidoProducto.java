@@ -2,6 +2,7 @@ package com.example.CartaDigital.entidad;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "PedidosProductos")
@@ -22,11 +23,13 @@ public class PedidoProducto {
     // RELACIÓN: Muchos PedidoProducto pertenecen a un Pedido
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_pedido", nullable = false)
+    @JsonIgnore
     private Pedido pedido;
     
-    // RELACIÓN: Muchos PedidoProducto pertenecen a un Producto
+    // RELACIÓN: Muchos PedidoProducto pertenecen a un Pedido
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_producto", nullable = false)
+    @JsonIgnore
     private Producto producto;
     
     // MÉTODO PARA CALCULAR EL SUBTOTAL

@@ -2,6 +2,7 @@ package com.example.CartaDigital.entidad;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -30,10 +31,12 @@ public class Pedido {
     // RELACIÓN: Muchos pedidos pertenecen a un cliente
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_cliente", nullable = false)
+    @JsonIgnore
     private Cliente cliente;
     
     // RELACIÓN: Un pedido puede tener muchos productos
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<PedidoProducto> pedidoProductos;
     
     // MÉTODO PARA CALCULAR EL TOTAL DEL PEDIDO
