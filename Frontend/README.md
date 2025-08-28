@@ -1,239 +1,70 @@
-# FrontRoti - Sistema de Gestión de Restaurante
+# Getting Started with Create React App
 
-FrontRoti es una aplicación web moderna y completa para la gestión de restaurantes, construida con React 19 y Vite. Incluye un sistema de autenticación robusto, un dashboard administrativo completo y una interfaz de usuario intuitiva y responsive.
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## 🚀 Características Principales
+## Available Scripts
 
-### Sistema de Autenticación
-- ✅ Login seguro con validaciones
-- ✅ Manejo de sesiones con localStorage
-- ✅ Contexto global de autenticación
-- ✅ Protección de rutas
-- ✅ Logout automático
+In the project directory, you can run:
 
-### Dashboard Administrativo
-- ✅ **Menú Principal**: Estadísticas y acciones rápidas
-- ✅ **Historial y Ranking**: Gestión de pedidos y productos
-- ✅ **Reseñas y Autorización**: Moderación de comentarios y aprobaciones
-- ✅ **Configuraciones Web**: Ajustes del sistema y notificaciones
+### `npm start`
 
-### Interfaz de Usuario
-- ✅ Diseño moderno y responsive
-- ✅ Navegación por pestañas intuitiva
-- ✅ Componentes reutilizables
-- ✅ Animaciones suaves y transiciones
-- ✅ Compatible con móviles y tablets
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-## 🛠️ Tecnologías Utilizadas
+The page will reload when you make changes.\
+You may also see any lint errors in the console.
 
-- **Frontend**: React 19, Vite
-- **Estilos**: CSS Modules, CSS Variables
-- **Estado**: React Hooks, Context API
-- **Autenticación**: JWT (simulado), localStorage
-- **Responsive**: CSS Grid, Flexbox, Media Queries
+### `npm test`
 
-## 📁 Estructura del Proyecto
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-```
-FrontRoti/
-├── public/
-│   └── vite.svg
-├── src/
-│   ├── components/
-│   │   ├── Login/
-│   │   │   ├── Login.jsx          # Componente de login
-│   │   │   ├── Login.css          # Estilos del login
-│   │   │   └── index.js           # Exportación
-│   │   └── Dashboard/
-│   │       ├── Dashboard.jsx      # Dashboard principal
-│   │       ├── Dashboard.css      # Estilos del dashboard
-│   │       ├── Sidebar.jsx        # Barra lateral
-│   │       ├── Sidebar.css        # Estilos de la barra lateral
-│   │       ├── Menu.jsx           # Página principal
-│   │       ├── Menu.css           # Estilos del menú
-│   │       ├── HistorialRanking.jsx # Historial y ranking
-│   │       ├── HistorialRanking.css # Estilos del historial
-│   │       ├── ResenasAutorizacion.jsx # Reseñas y autorizaciones
-│   │       ├── ResenasAutorizacion.css # Estilos de reseñas
-│   │       ├── ConfiguracionesWeb.jsx # Configuraciones
-│   │       ├── ConfiguracionesWeb.css # Estilos de configuraciones
-│   │       └── index.js           # Exportación
-│   ├── context/
-│   │   └── AuthContext.jsx        # Contexto de autenticación
-│   ├── hooks/
-│   │   └── useAuth.js             # Hook personalizado de auth
-│   ├── utils/
-│   │   └── auth.js                # Utilidades de autenticación
-│   ├── App.jsx                    # Componente principal
-│   ├── App.css                    # Estilos globales
-│   └── main.jsx                   # Punto de entrada
-├── package.json                   # Dependencias y scripts
-├── vite.config.js                 # Configuración de Vite
-└── README.md                      # Esta documentación
-```
+### `npm run build`
 
-## 🚀 Instalación y Uso
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
 
-### 1. Clonar el repositorio
-```bash
-git clone <url-del-repositorio>
-cd FrontRoti
-```
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
 
-### 2. Instalar dependencias
-```bash
-npm install
-```
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-### 3. Ejecutar en modo desarrollo
-```bash
-npm run dev
-```
+### `npm run eject`
 
-### 4. Construir para producción
-```bash
-npm run build
-```
+**Note: this is a one-way operation. Once you `eject`, you can't go back!**
 
-### 5. Vista previa de producción
-```bash
-npm run preview
-```
+If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-## 🔐 Sistema de Autenticación
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
 
-### Login
-- **Email**: Cualquier email válido (ej: `usuario@email.com`)
-- **Contraseña**: Mínimo 6 caracteres (ej: `123456`)
+You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
 
-### Características de Seguridad
-- Validación de formularios en tiempo real
-- Manejo de errores de autenticación
-- Persistencia de sesión en localStorage
-- Logout automático al cerrar sesión
+## Learn More
 
-## 📱 Funcionalidades del Dashboard
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-### Menú Principal
-- Estadísticas en tiempo real
-- Acciones rápidas para tareas comunes
-- Estado del sistema y servicios
-- Indicadores de rendimiento
+To learn React, check out the [React documentation](https://reactjs.org/).
 
-### Historial y Ranking
-- **Historial de Pedidos**: Lista completa con filtros
-- **Ranking de Productos**: Top 5 más vendidos
-- **Estadísticas**: Métricas de negocio con indicadores de cambio
+### Code Splitting
 
-### Reseñas y Autorización
-- **Gestión de Reseñas**: Aprobación, rechazo y edición
-- **Autorizaciones**: Descuentos, reembolsos y permisos
-- **Moderación**: Sistema completo de control de contenido
+This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
 
-### Configuraciones Web
-- **Configuración General**: Información del restaurante
-- **Notificaciones**: Email, SMS y push notifications
-- **Seguridad**: 2FA, sesiones y permisos
-- **Backup**: Sistema de respaldo y restauración
+### Analyzing the Bundle Size
 
-## 🎨 Personalización
+This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
 
-### Colores y Temas
-Los estilos se pueden personalizar modificando las variables CSS en los archivos correspondientes:
+### Making a Progressive Web App
 
-```css
-:root {
-  --primary-color: #6366f1;      /* Color principal */
-  --primary-hover: #4f46e5;      /* Color hover */
-  --success-color: #10b981;      /* Color de éxito */
-  --error-color: #ef4444;        /* Color de error */
-  --warning-color: #f59e0b;      /* Color de advertencia */
-}
-```
+This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
 
-### Componentes
-Todos los componentes están diseñados para ser fácilmente personalizables:
-- Estructura modular y reutilizable
-- Props configurables
-- Estilos CSS independientes
-- Responsive design integrado
+### Advanced Configuration
 
-## 📱 Responsive Design
+This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
 
-La aplicación está completamente optimizada para:
-- **Desktop**: Layout completo con sidebar fijo
-- **Tablet**: Sidebar colapsable y navegación adaptativa
-- **Mobile**: Navegación vertical y componentes apilados
+### Deployment
 
-## 🔧 Desarrollo
+This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
 
-### Scripts Disponibles
-- `npm run dev`: Servidor de desarrollo
-- `npm run build`: Construcción para producción
-- `npm run lint`: Verificación de código
-- `npm run preview`: Vista previa de producción
+### `npm run build` fails to minify
 
-### Estructura de Componentes
-Cada componente sigue las mejores prácticas de React:
-- Functional components con hooks
-- Props tipadas y documentadas
-- Manejo de estado local y global
-- Eventos y callbacks bien definidos
-
-### Estilos CSS
-- CSS Modules para encapsulación
-- Variables CSS para consistencia
-- Flexbox y Grid para layouts
-- Media queries para responsive design
-
-## 🚀 Próximos Pasos
-
-### Funcionalidades Planificadas
-1. **Sistema de Usuarios**: Roles y permisos
-2. **API Backend**: Integración con servidor real
-3. **Base de Datos**: Persistencia de datos
-4. **Notificaciones**: Sistema de alertas en tiempo real
-5. **Reportes**: Gráficos y análisis avanzados
-6. **Móvil**: Aplicación nativa para iOS/Android
-
-### Mejoras Técnicas
-1. **Testing**: Jest y React Testing Library
-2. **TypeScript**: Tipado estático
-3. **PWA**: Progressive Web App
-4. **Performance**: Lazy loading y optimizaciones
-5. **SEO**: Meta tags y estructura semántica
-
-## 🤝 Contribución
-
-### Cómo Contribuir
-1. Fork del repositorio
-2. Crear rama para nueva funcionalidad
-3. Implementar cambios con tests
-4. Crear Pull Request con descripción detallada
-
-### Estándares de Código
-- ESLint para linting
-- Prettier para formateo
-- Conventional Commits para mensajes
-- Componentes funcionales con hooks
-
-## 📄 Licencia
-
-Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
-
-## 📞 Soporte
-
-### Recursos de Ayuda
-- **Documentación**: Este README
-- **Issues**: GitHub Issues para reportar bugs
-- **Discusiones**: GitHub Discussions para preguntas
-- **Wiki**: Documentación técnica detallada
-
-### Contacto
-- **Email**: soporte@frontroti.com
-- **GitHub**: [@frontroti](https://github.com/frontroti)
-- **Documentación**: [docs.frontroti.com](https://docs.frontroti.com)
-
----
-
-**FrontRoti** - Transformando la gestión de restaurantes con tecnología moderna 🍕✨
+This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
