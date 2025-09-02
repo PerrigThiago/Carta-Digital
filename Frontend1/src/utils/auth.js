@@ -1,7 +1,6 @@
-// Utilidades para manejar la autenticación
+// Utilidades para manejar la autenticación con el backend Spring Boot
 
-// Simular almacenamiento de token (en producción usar localStorage o cookies seguras)
-let authToken = null;
+const API_BASE_URL = 'http://localhost:8080/api';
 
 export const auth = {
   // Login del usuario
@@ -16,45 +15,71 @@ export const auth = {
         throw new Error('La contraseña debe tener al menos 6 caracteres');
       }
 
-      // Simular respuesta exitosa (acepta cualquier email válido y contraseña de 6+ caracteres)
-      const mockResponse = {
+      // Convertir email a nombre de usuario para el backend
+      const username = credentials.email.split('@')[0]; // Usar parte local del email como username
+
+      const response = await fetch(`${API_BASE_URL}/usuarios/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          usuario: username,
+          contrasenia: credentials.password
+        })
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('Credenciales inválidas');
+        }
+        throw new Error('Error en el servidor');
+      }
+
+      const userData = await response.json();
+      
+      // Crear token simulado (en producción usar JWT real del backend)
+      const token = 'jwt-token-' + Date.now();
+      
+      // Guardar en localStorage
+      localStorage.setItem('authToken', token);
+      localStorage.setItem('user', JSON.stringify({
+        id: userData.id,
+        email: credentials.email,
+        name: userData.usuario || 'Usuario',
+        username: userData.usuario
+      }));
+
+      return {
         success: true,
-        token: 'mock-jwt-token-' + Date.now(),
+        token: token,
         user: {
-          id: 1,
+          id: userData.id,
           email: credentials.email,
-          name: 'Usuario Demo'
+          name: userData.usuario || 'Usuario',
+          username: userData.usuario
         }
       };
-
-      // Guardar token
-      authToken = mockResponse.token;
-
-      // Guardar en localStorage (en producción)
-      localStorage.setItem('authToken', authToken);
-      localStorage.setItem('user', JSON.stringify(mockResponse.user));
-
-      return mockResponse;
     } catch (error) {
+      console.error('Error en login:', error);
       throw new Error(error?.message || 'Error en la autenticación');
     }
   },
 
   // Logout del usuario
   logout: () => {
-    authToken = null;
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
   },
 
   // Verificar si el usuario está autenticado
   isAuthenticated: () => {
-    return authToken !== null || localStorage.getItem('authToken') !== null;
+    return localStorage.getItem('authToken') !== null;
   },
 
   // Obtener token actual
   getToken: () => {
-    return authToken || localStorage.getItem('authToken');
+    return localStorage.getItem('authToken');
   },
 
   // Obtener usuario actual
@@ -63,18 +88,14 @@ export const auth = {
     return user ? JSON.parse(user) : null;
   },
 
-  // Verificar si el token es válido (en producción verificar con el backend)
+  // Verificar si el token es válido
   isTokenValid: () => {
     const token = auth.getToken();
-    if (!token) return false;
-
-    // Aquí podrías verificar la expiración del token
-    // Por ahora solo verificamos que exista
-    return true;
+    return token !== null;
   }
 };
 
-// Interceptor para agregar token a las peticiones (opcional)
+// Cliente API para hacer peticiones al backend
 export const apiClient = {
   get: async (url, options = {}) => {
     const token = auth.getToken();
@@ -87,7 +108,17 @@ export const apiClient = {
       headers.Authorization = `Bearer ${token}`;
     }
 
-    return fetch(url, { ...options, headers });
+    const response = await fetch(`${API_BASE_URL}${url}`, { 
+      ...options, 
+      headers,
+      method: 'GET'
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
   },
 
   post: async (url, data, options = {}) => {
@@ -101,11 +132,66 @@ export const apiClient = {
       headers.Authorization = `Bearer ${token}`;
     }
 
-    return fetch(url, {
+    const response = await fetch(`${API_BASE_URL}${url}`, {
       method: 'POST',
       headers,
       body: JSON.stringify(data),
       ...options
     });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  },
+
+  put: async (url, data, options = {}) => {
+    const token = auth.getToken();
+    const headers = {
+      'Content-Type': 'application/json',
+      ...options.headers
+    };
+
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_BASE_URL}${url}`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify(data),
+      ...options
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  },
+
+  delete: async (url, options = {}) => {
+    const token = auth.getToken();
+    const headers = {
+      'Content-Type': 'application/json',
+      ...options.headers
+    };
+
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_BASE_URL}${url}`, {
+      method: 'DELETE',
+      headers,
+      ...options
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
   }
 };
