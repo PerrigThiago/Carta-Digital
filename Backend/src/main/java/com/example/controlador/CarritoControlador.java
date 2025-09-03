@@ -94,5 +94,3 @@ public class CarritoControlador {
                 : ResponseEntity.badRequest().body("No se pudo confirmar el carrito");
     }
 }
-
-
