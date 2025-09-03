@@ -64,10 +64,10 @@
 
 /* Formulario de configuración */
 .config-form {
-  background: var(--card-background);
+  background: var(--background-primary);
   border-radius: 12px;
   padding: 2rem;
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-sm);
   margin-bottom: 2rem;
 }
 
@@ -116,7 +116,8 @@
   border: 1px solid var(--border-color);
   border-radius: 6px;
   font-size: 0.875rem;
-  background: white;
+  background: var(--background-primary);
+  color: var(--text-primary);
   transition: all 0.2s ease;
 }
 
@@ -132,10 +133,10 @@
 
 /* Configuración de notificaciones */
 .notifications-config {
-  background: var(--card-background);
+  background: var(--background-primary);
   border-radius: 12px;
   padding: 2rem;
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-sm);
   margin-bottom: 2rem;
 }
 
@@ -159,7 +160,7 @@
 .notification-item {
   margin-bottom: 1.5rem;
   padding: 1rem;
-  background: var(--background-color);
+  background: var(--background-secondary);
   border-radius: 8px;
   border: 1px solid var(--border-color);
 }
@@ -220,12 +221,26 @@
   transform: translateX(20px);
 }
 
+/* Mejoras para modo oscuro */
+.dark-theme .switch {
+  background-color: var(--border-color);
+}
+
+.dark-theme .switch::after {
+  background-color: var(--background-primary);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.dark-theme .switch-label input[type="checkbox"]:checked + .switch {
+  background-color: var(--primary-color);
+}
+
 /* Configuración de seguridad */
 .security-config {
-  background: var(--card-background);
+  background: var(--background-primary);
   border-radius: 12px;
   padding: 2rem;
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-sm);
   margin-bottom: 2rem;
 }
 
@@ -249,7 +264,7 @@
 .security-item {
   margin-bottom: 1.5rem;
   padding: 1rem;
-  background: var(--background-color);
+  background: var(--background-secondary);
   border-radius: 8px;
   border: 1px solid var(--border-color);
 }
@@ -267,10 +282,10 @@
 
 /* Backup y restauración */
 .backup-section {
-  background: var(--card-background);
+  background: var(--background-primary);
   border-radius: 12px;
   padding: 2rem;
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-sm);
   margin-bottom: 2rem;
 }
 
@@ -296,7 +311,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  background: var(--background-color);
+  background: var(--background-secondary);
   border-radius: 8px;
   border: 1px solid var(--border-color);
 }
@@ -325,7 +340,7 @@
 }
 
 .action-card {
-  background: var(--background-color);
+  background: var(--background-secondary);
   border-radius: 8px;
   padding: 1.5rem;
   border: 1px solid var(--border-color);
@@ -368,7 +383,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  background: var(--background-color);
+  background: var(--background-secondary);
   border-radius: 8px;
   border: 1px solid var(--border-color);
   font-size: 0.875rem;
@@ -440,9 +455,9 @@
   justify-content: flex-end;
   gap: 1rem;
   padding: 2rem;
-  background: var(--card-background);
+  background: var(--background-primary);
   border-radius: 12px;
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-sm);
 }
 
 /* Responsive */
@@ -560,13 +575,56 @@
   transition: all 0.2s ease;
 }
 
+/* Selector de tema */
+.theme-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.theme-preview {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: var(--background-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.theme-indicator {
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+}
+
+.theme-status {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
 /* Estados de hover mejorados */
 .notification-item:hover,
 .security-item:hover,
 .action-card:hover {
   border-color: var(--primary-color);
   transform: translateY(-1px);
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Mejoras para modo oscuro */
+.dark-theme .tab-button {
+  border-bottom-color: var(--border-color);
+}
+
+.dark-theme .tab-button:hover {
+  background-color: rgba(129, 140, 248, 0.1);
+}
+
+.dark-theme .tab-button.active {
+  background-color: rgba(129, 140, 248, 0.15);
+  border-bottom-color: var(--primary-color);
 }
 
 .backup-item:hover {

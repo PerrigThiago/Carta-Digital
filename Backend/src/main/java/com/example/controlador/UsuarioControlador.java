@@ -92,12 +92,20 @@ public class UsuarioControlador {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest req) {
+        System.out.println("=== LOGIN RECIBIDO ===");
+        System.out.println("Usuario: '" + req.getUsuario() + "'");
+        System.out.println("Contraseña: '" + req.getContrasenia() + "'");
+        
         return usuarioServicio.autenticar(req.getUsuario(), req.getContrasenia())
             .<ResponseEntity<?>>map(u -> {
+                System.out.println("=== LOGIN EXITOSO ===");
                 // Evitar enviar la contraseña al cliente
                 u.setContrasenia(null);
                 return ResponseEntity.ok(u);
             })
-            .orElseGet(() -> ResponseEntity.status(401).body("Credenciales inválidas"));
+            .orElseGet(() -> {
+                System.out.println("=== LOGIN FALLIDO - 401 ===");
+                return ResponseEntity.status(401).body("Credenciales inválidas");
+            });
     }
 }

@@ -1,16 +1,5 @@
-/* Variables CSS */
+/* Variables CSS del Login */
 :root {
-  --primary-color: #6366f1;
-  --primary-hover: #4f46e5;
-  --secondary-color: #64748b;
-  --success-color: #10b981;
-  --error-color: #ef4444;
-  --warning-color: #f59e0b;
-  --text-primary: #1e293b;
-  --text-secondary: #64748b;
-  --border-color: #e2e8f0;
-  --background-color: #f8fafc;
-  --card-background: #ffffff;
   --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
@@ -24,7 +13,7 @@
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  background: var(--background-color);
+  background: var(--background-secondary);
   color: var(--text-primary);
   line-height: 1.6;
 }
@@ -41,7 +30,7 @@ body {
 
 /* Tarjeta de login */
 .login-card {
-  background: var(--card-background);
+  background: var(--background-primary);
   border-radius: 16px;
   box-shadow: var(--shadow);
   padding: 40px;
@@ -102,6 +91,13 @@ body {
   background: #ffffff;
 }
 
+.form-group input.error {
+  border-color: var(--error-color);
+  background-color: rgba(239, 68, 68, 0.05);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+}
+
 .form-group input:focus {
   outline: none;
   border-color: var(--primary-color);
@@ -129,10 +125,25 @@ body {
 
 .general-error {
   background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  padding: 12px;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 16px;
   border-radius: 8px;
   text-align: center;
+  margin-bottom: 8px;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.1);
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Opciones del formulario */
@@ -299,4 +310,37 @@ body {
 /* Transiciones suaves */
 * {
   transition: all 0.2s ease;
+}
+
+/* Mejoras para modo oscuro */
+.dark-theme .login-container {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+}
+
+.dark-theme .login-card {
+  border: 1px solid var(--border-color);
+}
+
+.dark-theme .form-group input {
+  background-color: var(--background-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.dark-theme .form-group input::placeholder {
+  color: var(--text-muted);
+}
+
+.dark-theme .form-group input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2);
+}
+
+.dark-theme .login-button {
+  border: 1px solid var(--border-color);
+}
+
+.dark-theme .login-button:hover:not(:disabled) {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.2);
 }

@@ -13,11 +13,14 @@ export const useAuth = () => {
         const currentUser = auth.getCurrentUser();
         const tokenValid = auth.isTokenValid();
         
+        console.log('Verificando autenticación:', { currentUser, tokenValid });
+        
         if (currentUser && tokenValid) {
+          console.log('Usuario autenticado encontrado:', currentUser);
           setUser(currentUser);
           setIsAuthenticated(true);
         } else {
-          // Token inválido, limpiar estado
+          console.log('No hay usuario autenticado, limpiando estado');
           auth.logout();
           setUser(null);
           setIsAuthenticated(false);
@@ -37,32 +40,77 @@ export const useAuth = () => {
 
   // Función de login
   const login = useCallback(async (credentials) => {
+    console.log('=== INICIO LOGIN ===');
+    console.log('Credenciales recibidas:', credentials);
+    
     setIsLoading(true);
+    
     try {
+      console.log('Llamando a auth.login...');
       const response = await auth.login(credentials);
-      setUser(response.user);
-      setIsAuthenticated(true);
+      console.log('Respuesta de auth.login:', response);
+      
+      if (response && response.user) {
+        console.log('Usuario recibido:', response.user);
+        
+        // Actualizar el estado de forma síncrona
+        setUser(response.user);
+        setIsAuthenticated(true);
+        
+        console.log('Estado actualizado - Usuario:', response.user, 'Autenticado:', true);
+        
+        // Esperar un tick para asegurar que el estado se propague
+        await new Promise(resolve => setTimeout(resolve, 10));
+        
+        console.log('Estado después del timeout:', { user, isAuthenticated });
+      } else {
+        console.error('Respuesta inválida de auth.login:', response);
+        throw new Error('Respuesta inválida del servidor');
+      }
+      
       return response;
     } catch (error) {
+      console.error('Error en login:', error);
+      setUser(null);
+      setIsAuthenticated(false);
       throw error;
     } finally {
       setIsLoading(false);
+      console.log('Estado final después del login:', { user, isAuthenticated, isLoading: false });
     }
   }, []);
 
   // Función de logout
   const logout = useCallback(() => {
+    console.log('Ejecutando logout...');
     auth.logout();
     setUser(null);
     setIsAuthenticated(false);
+    console.log('Estado actualizado después del logout:', { user: null, isAuthenticated: false });
   }, []);
 
   // Función para actualizar datos del usuario
   const updateUser = useCallback((userData) => {
     setUser(prev => ({ ...prev, ...userData }));
-    // También actualizar en localStorage
     localStorage.setItem('user', JSON.stringify({ ...user, ...userData }));
   }, [user]);
+
+  // Log del estado actual para debugging
+  useEffect(() => {
+    console.log('=== ESTADO DE AUTENTICACIÓN ACTUALIZADO ===');
+    console.log('Usuario:', user);
+    console.log('Autenticado:', isAuthenticated);
+    console.log('Cargando:', isLoading);
+  }, [user, isAuthenticated, isLoading]);
+
+  // Efecto para sincronizar el estado con localStorage
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      console.log('=== SINCRONIZANDO ESTADO CON LOCALSTORAGE ===');
+      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('authToken', 'jwt-token-' + Date.now());
+    }
+  }, [isAuthenticated, user]);
 
   return {
     user,

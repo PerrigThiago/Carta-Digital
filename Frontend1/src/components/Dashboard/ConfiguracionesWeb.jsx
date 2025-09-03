@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import './ConfiguracionesWeb.css';
 
 const ConfiguracionesWeb = () => {
+  const { theme, changeTheme } = useTheme();
   const [activeTab, setActiveTab] = useState('general');
   const [configData, setConfigData] = useState({
     nombreRestaurante: 'FrontRoti Pizza',
@@ -13,7 +15,7 @@ const ConfiguracionesWeb = () => {
     moneda: 'USD',
     zonaHoraria: 'America/New_York',
     idioma: 'es',
-    tema: 'claro'
+    tema: theme // Usar el tema del contexto
   });
 
   const [notificaciones, setNotificaciones] = useState({
@@ -37,6 +39,11 @@ const ConfiguracionesWeb = () => {
       ...prev,
       [key]: value
     }));
+    
+    // Si se cambia el tema, aplicarlo inmediatamente
+    if (key === 'tema') {
+      changeTheme(value);
+    }
   };
 
   const handleNotificacionChange = (key, value) => {
@@ -68,6 +75,14 @@ const ConfiguracionesWeb = () => {
     console.log('Restaurando sistema desde backup');
     alert('Restauración iniciada. El sistema se reiniciará.');
   };
+
+  // Sincronizar el tema del estado local con el contexto
+  useEffect(() => {
+    setConfigData(prev => ({
+      ...prev,
+      tema: theme
+    }));
+  }, [theme]);
 
   return (
     <div className="configuraciones-web-container">
@@ -223,18 +238,31 @@ const ConfiguracionesWeb = () => {
                     <option value="pt">Português</option>
                   </select>
                 </div>
-                <div className="form-group">
-                  <label>Tema</label>
-                  <select
-                    value={configData.tema}
-                    onChange={(e) => handleConfigChange('tema', e.target.value)}
-                    className="form-control"
-                  >
-                    <option value="claro">Claro</option>
-                    <option value="oscuro">Oscuro</option>
-                    <option value="auto">Automático</option>
-                  </select>
-                </div>
+                                 <div className="form-group">
+                   <label>Tema</label>
+                   <div className="theme-selector">
+                     <select
+                       value={configData.tema}
+                       onChange={(e) => handleConfigChange('tema', e.target.value)}
+                       className="form-control"
+                     >
+                       <option value="claro">☀️ Claro</option>
+                       <option value="oscuro">🌙 Oscuro</option>
+                       <option value="auto">🔄 Automático</option>
+                     </select>
+                     <div className="theme-preview">
+                       <span className="theme-indicator">
+                         {configData.tema === 'claro' && '☀️'}
+                         {configData.tema === 'oscuro' && '🌙'}
+                         {configData.tema === 'auto' && '🔄'}
+                       </span>
+                       <span className="theme-status">
+                         {configData.tema === 'auto' ? 'Siguiendo preferencia del sistema' : 
+                          configData.tema === 'oscuro' ? 'Modo oscuro activo' : 'Modo claro activo'}
+                       </span>
+                     </div>
+                   </div>
+                 </div>
               </div>
             </div>
           </div>

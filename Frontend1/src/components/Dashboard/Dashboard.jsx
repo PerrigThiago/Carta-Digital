@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuthContext } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import Sidebar from './Sidebar';
 import Menu from './Menu';
 import HistorialRanking from './HistorialRanking';
@@ -9,6 +10,7 @@ import './Dashboard.css';
 
 const Dashboard = () => {
   const { user, logout } = useAuthContext();
+  const { theme, changeTheme, isDark } = useTheme();
   const [activeTab, setActiveTab] = useState('menu');
 
   // Función para renderizar el contenido según la pestaña activa
@@ -50,6 +52,13 @@ const Dashboard = () => {
               {activeTab === 'configuraciones' && 'Configuraciones Web'}
             </h1>
             <div className="user-info">
+              <button 
+                className="theme-toggle-btn"
+                onClick={() => changeTheme(isDark ? 'claro' : 'oscuro')}
+                title={`Cambiar a modo ${isDark ? 'claro' : 'oscuro'}`}
+              >
+                {isDark ? '☀️' : '🌙'}
+              </button>
               <span className="user-name">Bienvenido, {user?.name || 'Usuario'}</span>
               <div className="user-avatar">
                 {user?.name?.charAt(0)?.toUpperCase() || 'U'}

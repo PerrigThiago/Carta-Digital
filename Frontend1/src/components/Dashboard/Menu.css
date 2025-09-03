@@ -41,10 +41,10 @@
 }
 
 .stat-card {
-  background: var(--card-background);
+  background: var(--background-primary);
   border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-sm);
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -53,7 +53,7 @@
 
 .stat-card:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-md);
 }
 
 .stat-icon {
@@ -122,17 +122,17 @@
 }
 
 .action-container {
-  background: white;
+  background: var(--background-primary);
   border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
   transition: all 0.3s ease;
   border: 1px solid var(--border-color);
 }
 
 .action-container:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-md);
 }
 
 .action-item {
@@ -222,10 +222,11 @@
 }
 
 .info-card {
-  background: var(--card-background);
+  background: var(--background-primary);
   border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
 }
 
 .info-card h4 {
@@ -296,10 +297,10 @@
 /* Sección de la tabla del menú */
 .menu-table-section {
   margin: 2rem 0;
-  background: white;
+  background: var(--background-primary);
   border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-color);
 }
 
@@ -346,7 +347,7 @@
 .menu-table {
   width: 100%;
   border-collapse: collapse;
-  background: white;
+  background: var(--background-primary);
   font-size: 14px;
 }
 
@@ -637,4 +638,61 @@
 
 .table-container:hover::after {
   opacity: 1;
+}
+
+/* Mejoras para modo oscuro */
+.dark-theme .stat-card {
+  border: 1px solid var(--border-color);
+}
+
+.dark-theme .action-container {
+  border-color: var(--border-color);
+}
+
+.dark-theme .action-container:hover {
+  border-color: var(--primary-color);
+  background-color: var(--background-secondary);
+}
+
+.dark-theme .menu-table th {
+  background-color: var(--background-secondary);
+  border-color: var(--border-color);
+}
+
+.dark-theme .menu-table td {
+  border-color: var(--border-color);
+}
+
+.dark-theme .menu-table tr:hover {
+  background-color: var(--background-secondary);
+}
+
+/* Mejoras adicionales para modo oscuro */
+.dark-theme .menu-table {
+  background-color: var(--background-primary);
+}
+
+.dark-theme .menu-table tr:nth-child(even) {
+  background-color: var(--background-secondary);
+}
+
+.dark-theme .menu-table tr:hover {
+  background-color: var(--background-tertiary);
+}
+
+.dark-theme .info-card {
+  background-color: var(--background-primary);
+}
+
+/* Estilos para scrollbars en modo oscuro */
+.dark-theme .table-container::-webkit-scrollbar-track {
+  background: var(--background-secondary);
+}
+
+.dark-theme .table-container::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+}
+
+.dark-theme .table-container::-webkit-scrollbar-thumb:hover {
+  background: var(--border-hover);
 }

@@ -1,7 +1,7 @@
 /* Estilos de la barra lateral */
 .sidebar {
   width: var(--sidebar-width);
-  background: var(--card-background);
+  background: var(--background-primary);
   border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;

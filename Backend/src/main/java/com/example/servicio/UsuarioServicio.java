@@ -112,16 +112,35 @@ public class UsuarioServicio {
         // Autenticación por usuario y contraseña (simple, sin hashing)
         public Optional<Usuario> autenticar(String nombreUsuario, String contrasenia) {
             try {
+                System.out.println("=== AUTENTICACIÓN INICIADA ===");
+                System.out.println("Usuario recibido: '" + nombreUsuario + "'");
+                System.out.println("Contraseña recibida: '" + contrasenia + "'");
+                
                 if (nombreUsuario == null || nombreUsuario.isBlank() || contrasenia == null || contrasenia.isBlank()) {
+                    System.out.println("Credenciales vacías o nulas");
                     return Optional.empty();
                 }
+                
                 Usuario encontrado = usuarioRepositorio.findByUsuario(nombreUsuario);
+                System.out.println("Usuario encontrado en BD: " + (encontrado != null ? "SÍ" : "NO"));
+                
+                if (encontrado != null) {
+                    System.out.println("ID del usuario: " + encontrado.getId());
+                    System.out.println("Usuario en BD: '" + encontrado.getUsuario() + "'");
+                    System.out.println("Contraseña en BD: '" + encontrado.getContrasenia() + "'");
+                    System.out.println("¿Contraseñas coinciden? " + contrasenia.equals(encontrado.getContrasenia()));
+                }
+                
                 if (encontrado != null && contrasenia.equals(encontrado.getContrasenia())) {
+                    System.out.println("=== AUTENTICACIÓN EXITOSA ===");
                     return Optional.of(encontrado);
                 }
+                
+                System.out.println("=== AUTENTICACIÓN FALLIDA ===");
                 return Optional.empty();
             } catch (Exception e) {
                 System.err.println("Error autenticando usuario: " + e.getMessage());
+                e.printStackTrace();
                 return Optional.empty();
             }
         }

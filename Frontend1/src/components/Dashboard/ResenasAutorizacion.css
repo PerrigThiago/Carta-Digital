@@ -74,7 +74,8 @@
   border: 1px solid var(--border-color);
   border-radius: 6px;
   font-size: 0.875rem;
-  background: white;
+  background: var(--background-primary);
+  color: var(--text-primary);
   min-width: 150px;
 }
 
@@ -92,10 +93,10 @@
 }
 
 .resena-card {
-  background: var(--card-background);
+  background: var(--background-primary);
   border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-sm);
   transition: all 0.3s ease;
 }
 
@@ -168,7 +169,7 @@
 }
 
 .respuesta {
-  background: var(--background-color);
+  background: var(--background-secondary);
   padding: 1rem;
   border-radius: 8px;
   border-left: 4px solid var(--primary-color);
@@ -245,9 +246,9 @@
 
 /* Tabla de autorizaciones */
 .table-container {
-  background: var(--card-background);
+  background: var(--background-primary);
   border-radius: 12px;
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
 }
 
@@ -257,7 +258,7 @@
 }
 
 .data-table th {
-  background: var(--background-color);
+  background: var(--background-secondary);
   padding: 1rem;
   text-align: left;
   font-weight: 600;
@@ -274,7 +275,7 @@
 }
 
 .data-table tr:hover {
-  background: var(--background-color);
+  background: var(--background-secondary);
 }
 
 /* Badges de tipo y estado */
@@ -332,7 +333,7 @@
 }
 
 .action-btn:hover {
-  background: var(--background-color);
+  background: var(--background-secondary);
 }
 
 .success-btn:hover {
@@ -363,7 +364,7 @@
 }
 
 .modal-content {
-  background: var(--card-background);
+  background: var(--background-primary);
   border-radius: 12px;
   box-shadow: var(--shadow-lg);
   max-width: 500px;
@@ -399,7 +400,7 @@
 }
 
 .modal-close:hover {
-  background: var(--background-color);
+  background: var(--background-secondary);
   color: var(--text-primary);
 }
 
@@ -435,7 +436,8 @@
   border: 1px solid var(--border-color);
   border-radius: 6px;
   font-size: 0.875rem;
-  background: white;
+  background: var(--background-primary);
+  color: var(--text-primary);
   transition: all 0.2s ease;
 }
 
@@ -582,4 +584,118 @@
 /* Transiciones suaves */
 .resenas-autorizacion-container * {
   transition: all 0.2s ease;
+}
+
+/* Mejoras para modo oscuro */
+.dark-theme .tab-button {
+  border-bottom-color: var(--border-color);
+}
+
+.dark-theme .tab-button:hover {
+  background-color: rgba(129, 140, 248, 0.1);
+}
+
+.dark-theme .tab-button.active {
+  background-color: rgba(129, 140, 248, 0.15);
+  border-bottom-color: var(--primary-color);
+}
+
+.dark-theme .resena-card {
+  border: 1px solid var(--border-color);
+}
+
+.dark-theme .resena-card:hover {
+  border-color: var(--primary-color);
+  background-color: var(--background-secondary);
+}
+
+.dark-theme .data-table th {
+  background-color: var(--background-secondary);
+  border-color: var(--border-color);
+}
+
+.dark-theme .data-table td {
+  border-color: var(--border-color);
+}
+
+.dark-theme .data-table tr:hover {
+  background-color: var(--background-secondary);
+}
+
+.dark-theme .modal-content {
+  background-color: var(--background-primary);
+  border-color: var(--border-color);
+}
+
+.dark-theme .modal-header {
+  border-bottom-color: var(--border-color);
+}
+
+.dark-theme .modal-footer {
+  border-top-color: var(--border-color);
+}
+
+/* Mejoras adicionales para modo oscuro */
+.dark-theme .data-table {
+  background-color: var(--background-primary);
+}
+
+.dark-theme .data-table tr:nth-child(even) {
+  background-color: var(--background-secondary);
+}
+
+.dark-theme .data-table tr:hover {
+  background-color: var(--background-tertiary);
+}
+
+.dark-theme .resena-card {
+  background-color: var(--background-primary);
+}
+
+.dark-theme .respuesta {
+  background-color: var(--background-secondary);
+}
+
+/* Estilos para scrollbars en modo oscuro */
+.dark-theme .table-container::-webkit-scrollbar-track {
+  background: var(--background-secondary);
+}
+
+.dark-theme .table-container::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+}
+
+.dark-theme .table-container::-webkit-scrollbar-thumb:hover {
+  background: var(--border-hover);
+}
+
+/* Mejoras para badges y estados en modo oscuro */
+.dark-theme .tipo-badge,
+.dark-theme .status-badge {
+  border: 1px solid var(--border-color);
+}
+
+.dark-theme .tipo-descuento {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: var(--success-color);
+}
+
+.dark-theme .tipo-reembolso {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: var(--error-color);
+}
+
+.dark-theme .status-success {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: var(--success-color);
+}
+
+.dark-theme .status-warning {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: var(--warning-color);
+}
+
+.dark-theme .status-danger {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: var(--error-color);
 }

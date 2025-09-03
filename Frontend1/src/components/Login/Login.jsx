@@ -1,16 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import './Login.css';
 
 const Login = () => {
-  const { login } = useAuth();
+  const { login, isAuthenticated, user } = useAuth();
   const [formData, setFormData] = useState({
-    email: '',
+    username: '',
     password: ''
   });
   
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+
+  // Efecto para detectar cuando el usuario se autentica y redirigir
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      console.log('=== REDIRECCIÓN AUTOMÁTICA DESDE LOGIN ===');
+      console.log('Usuario autenticado detectado:', user);
+      console.log('Redirigiendo al dashboard...');
+      
+      // Forzar un re-render del componente padre
+      window.location.reload();
+    }
+  }, [isAuthenticated, user]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,18 +38,28 @@ const Login = () => {
         [name]: ''
       }));
     }
+    
+    // Limpiar error general cuando el usuario modifique cualquier campo
+    if (errors.general) {
+      setErrors(prev => ({
+        ...prev,
+        general: ''
+      }));
+    }
   };
 
   const validateForm = () => {
     const newErrors = {};
     
-    if (!formData.email) {
-      newErrors.email = 'El email es requerido';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'El email no es válido';
+    // Validar nombre de usuario
+    if (!formData.username || formData.username.trim() === '') {
+      newErrors.username = 'El nombre de usuario es requerido';
+    } else if (formData.username.trim().length < 3) {
+      newErrors.username = 'El nombre de usuario debe tener al menos 3 caracteres';
     }
     
-    if (!formData.password) {
+    // Validar contraseña
+    if (!formData.password || formData.password === '') {
       newErrors.password = 'La contraseña es requerida';
     } else if (formData.password.length < 6) {
       newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
@@ -50,22 +72,41 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    console.log('Formulario enviado con datos:', formData);
+    
     if (!validateForm()) {
+      console.log('Validación del formulario falló');
       return;
     }
     
     setIsLoading(true);
+    console.log('Iniciando proceso de login...');
     
     try {
       // Usar el hook de autenticación
-      await login(formData);
+      const result = await login(formData);
+      console.log('Login exitoso, resultado:', result);
       
       // El hook maneja el estado, solo mostrar mensaje de éxito
       console.log('Login exitoso!');
       
     } catch (error) {
       console.error('Error en login:', error);
-      setErrors({ general: error?.message || 'Error en el login. Inténtalo de nuevo.' });
+      
+      // Mostrar mensaje de error más amigable
+      let errorMessage = 'Error en el login. Inténtalo de nuevo.';
+      
+      if (error?.message) {
+        if (error.message.includes('incorrectos')) {
+          errorMessage = 'El nombre de usuario o la contraseña son incorrectos. Verifica tus datos.';
+        } else if (error.message.includes('requeridos')) {
+          errorMessage = 'Por favor, completa todos los campos requeridos.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      setErrors({ general: errorMessage });
     } finally {
       setIsLoading(false);
     }
@@ -87,17 +128,17 @@ const Login = () => {
           )}
           
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="username">Nombre de Usuario</label>
             <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
+              type="text"
+              id="username"
+              name="username"
+              value={formData.username}
               onChange={handleChange}
-              placeholder="tu@email.com"
-              className={errors.email ? 'error' : ''}
+              placeholder="Ingresa tu nombre de usuario"
+              className={errors.username ? 'error' : ''}
             />
-            {errors.email && <span className="error-message">{errors.email}</span>}
+            {errors.username && <span className="error-message">{errors.username}</span>}
           </div>
           
           <div className="form-group">
@@ -120,7 +161,6 @@ const Login = () => {
               <span className="checkmark"></span>
               Recordarme
             </label>
-            <a href="#" className="forgot-password">¿Olvidaste tu contraseña?</a>
           </div>
           
           <button 
@@ -134,7 +174,7 @@ const Login = () => {
         
         <div className="login-footer">
           <p>
-            Ingresa cualquier email válido y contraseña de 6+ caracteres
+            Ingresa tu nombre de usuario y contraseña
           </p>
         </div>
       </div>
