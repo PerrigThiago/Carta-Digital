@@ -1,9 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './Menu.css';
+import { useProducts } from '../../hooks/useProducts';
 
 const Menu = () => {
-  const [showMenuTable, setShowMenuTable] = useState(false);
+  const [idFilter, setIdFilter] = useState('');
+  const [nameFilter, setNameFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const { products, filteredProducts, loading, error,
+    createProduct, updateProduct, deleteProduct,
+    updateFilters, clearFilters, getUniqueGroups
+  } = useProducts();
   
+  const [visibleCount, setVisibleCount] = useState(20);
+  const tableRef = useRef(null);
+
   // Datos de ejemplo para las estadísticas
   const stats = [
     { label: 'Pedidos Hoy', value: '24', icon: '📦', color: 'blue' },
@@ -11,51 +21,81 @@ const Menu = () => {
     { label: 'Reseñas', value: '4.8', icon: '⭐', color: 'orange' }
   ];
 
-  // Datos de ejemplo para el menú de productos - ahora en estado local
-  const [menuProducts, setMenuProducts] = useState([
-    { id: 1, categoria: 'Pizzas', nombre: 'Pizza Margherita', precio: '$15.99', disponible: true },
-    { id: 2, categoria: 'Pizzas', nombre: 'Pizza Pepperoni', precio: '$18.99', disponible: true },
-    { id: 3, categoria: 'Pizzas', nombre: 'Pizza Hawaiana', precio: '$16.99', disponible: false },
-    { id: 4, categoria: 'Pizzas', nombre: 'Pizza Vegetariana', precio: '$17.99', disponible: true },
-    { id: 5, categoria: 'Pizzas', nombre: 'Pizza BBQ', precio: '$19.99', disponible: true },
-    { id: 6, categoria: 'Pizzas', nombre: 'Pizza Cuatro Quesos', precio: '$20.99', disponible: true },
-    { id: 7, categoria: 'Pizzas', nombre: 'Pizza Mexicana', precio: '$18.99', disponible: false },
-    { id: 8, categoria: 'Bebidas', nombre: 'Coca Cola', precio: '$2.50', disponible: true },
-    { id: 9, categoria: 'Bebidas', nombre: 'Agua Mineral', precio: '$1.99', disponible: true },
-    { id: 10, categoria: 'Bebidas', nombre: 'Limonada', precio: '$3.50', disponible: true },
-    { id: 11, categoria: 'Bebidas', nombre: 'Té Helado', precio: '$2.99', disponible: false },
-    { id: 12, categoria: 'Bebidas', nombre: 'Jugo de Naranja', precio: '$3.99', disponible: true },
-    { id: 13, categoria: 'Bebidas', nombre: 'Cerveza', precio: '$4.99', disponible: true },
-    { id: 14, categoria: 'Postres', nombre: 'Tiramisú', precio: '$8.99', disponible: true },
-    { id: 15, categoria: 'Postres', nombre: 'Cheesecake', precio: '$7.99', disponible: false },
-    { id: 16, categoria: 'Postres', nombre: 'Flan', precio: '$6.99', disponible: true },
-    { id: 17, categoria: 'Postres', nombre: 'Helado', precio: '$4.99', disponible: true },
-    { id: 18, categoria: 'Postres', nombre: 'Brownie', precio: '$5.99', disponible: true },
-    { id: 19, categoria: 'Entradas', nombre: 'Bruschetta', precio: '$6.99', disponible: true },
-    { id: 20, categoria: 'Entradas', nombre: 'Ensalada César', precio: '$8.99', disponible: true },
-    { id: 21, categoria: 'Entradas', nombre: 'Sopa del Día', precio: '$5.99', disponible: true },
-    { id: 22, categoria: 'Entradas', nombre: 'Palitos de Ajo', precio: '$4.99', disponible: true },
-    { id: 23, categoria: 'Entradas', nombre: 'Alitas de Pollo', precio: '$9.99', disponible: false }
-  ]);
-
-  // Función para manejar cambios en la disponibilidad
-  const handleDisponibilidadChange = (productId, disponible) => {
-    setMenuProducts(prevProducts => 
-      prevProducts.map(product => 
-        product.id === productId 
-          ? { ...product, disponible: disponible }
-          : product
-      )
-    );
-    console.log(`Producto ${productId} - Disponibilidad: ${disponible}`);
-    // Aquí iría la lógica para actualizar en el backend
-  };
+  const handleDisponibilidadChange = async (productId, disponible) => {
+    try {
+      await updateProduct(productId, { disponibilidad: disponible });
+      console.log(`Producto ${productId} - Disponibilidad actualizada: ${disponible}`);
+    } catch (error) {
+      console.error('Error actualizando disponibilidad:', error);
+    }
+  } 
 
   const quickActions = [
     { label: 'Ver Menú', icon: '🍽️', action: 'menu' },
     { label: 'Categorías', icon: '📂', action: 'categorias' },
     { label: 'Productos', icon: '🍕', action: 'productos' }
   ];
+
+  const handleAddProduct = async () => {
+    const nombre = prompt('Nombre del producto:');
+    const precio = Number(prompt('Precio:'));
+    const grupo = prompt('Grupo (categoría):');
+    if (!nombre || !grupo || Number.isNaN(precio)) return;
+    try {
+      await createProduct({ nombre, precio, grupo, disponibilidad: true });
+      alert('Producto creado');
+    } catch (e) {
+      console.error('Error creando producto:', e);
+      alert('Error al crear el producto');
+    }
+  };
+
+  const handleEditProduct = async () => {
+    const id = Number(prompt('ID del producto a editar:'));
+    if (Number.isNaN(id)) return;
+    const precio = Number(prompt('Nuevo precio:'));
+    if (Number.isNaN(precio)) return;
+    try {
+      await updateProduct(id, { precio });
+      alert('Producto actualizado');
+    } catch (e) {
+      console.error('Error editando producto:', e);
+      alert('Error al editar el producto');
+    }
+  };
+
+  const handleDeleteProduct = async () => {
+    const id = Number(prompt('ID del producto a eliminar:'));
+    if (Number.isNaN(id)) return;
+    if (!confirm(`¿Eliminar producto ${id}?`)) return;
+    try {
+      await deleteProduct(id);
+      alert('Producto eliminado');
+    } catch (e) {
+      console.error('Error eliminando producto:', e);
+      alert('Error al eliminar el producto');
+    }
+  };
+
+  const handleRowEdit = async (product) => {
+    const precio = Number(prompt(`Nuevo precio para ${product.nombre}:`, product.precio));
+    if (Number.isNaN(precio)) return;
+    try { await updateProduct(product.id, { precio }); alert('Producto actualizado'); }
+    catch (e) { console.error(e); alert('Error al actualizar'); }
+  };
+
+  const handleRowDelete = async (product) => {
+    if (!confirm(`¿Eliminar "${product.nombre}" (ID ${product.id})?`)) return;
+    try { await deleteProduct(product.id); alert('Producto eliminado'); }
+    catch (e) { console.error(e); alert('Error al eliminar'); }
+  };
+
+  const handleAddCategory = () => {
+    const nueva = prompt('Nombre de nueva categoría:');
+    if (nueva) {
+      alert(`Categoría "${nueva}" creada. Asignala al crear/editar productos.`);
+    }
+  };
 
   const renderActionButtons = (action) => {
     // Si es "Ver Menú", mostrar como botón que despliega la tabla
@@ -86,22 +126,25 @@ const Menu = () => {
         <div className="action-buttons">
           <button 
             className="action-btn add-btn" 
-            onClick={() => console.log(`Agregar ${action.label}`)}
+            onClick={handleAddProduct}
             title={`Agregar ${action.label}`}
+            disabled={loading}
           >
             ➕
           </button>
           <button 
             className="action-btn edit-btn" 
-            onClick={() => console.log(`Editar ${action.label}`)}
+            onClick={handleEditProduct}
             title={`Editar ${action.label}`}
+            disabled={loading}
           >
             ✏️
           </button>
           <button 
             className="action-btn delete-btn" 
-            onClick={() => console.log(`Borrar ${action.label}`)}
+            onClick={handleDeleteProduct}
             title={`Borrar ${action.label}`}
+            disabled={loading}
           >
             🗑️
           </button>
@@ -109,6 +152,25 @@ const Menu = () => {
       </div>
     );
   };
+
+  useEffect(() => {
+    const el = tableRef.current;
+    if (!el) return;
+
+    const onScroll = () => {
+      const nearBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 10;
+      if (nearBottom) {
+        setVisibleCount(prev => Math.min(prev + 20, filteredProducts.length));
+      }
+    };
+
+    el.addEventListener('scroll', onScroll);
+    return () => el.removeEventListener('scroll', onScroll);
+  }, [filteredProducts.length]);
+
+  const rows = filteredProducts
+    .filter(p => idFilter ? String(p.id) === String(idFilter) : true)
+    .slice(0, visibleCount);
 
   return (
     <div className="menu-container">
@@ -138,59 +200,122 @@ const Menu = () => {
         ))}
       </div>
 
-      {/* Acciones rápidas */}
-      <div className="quick-actions-section">
-        <h3 className="section-title">Acciones Rápidas</h3>
-        <div className="actions-grid">
-          {quickActions.map((action, index) => (
-            <div key={index} className="action-container">
-              {renderActionButtons(action)}
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* Tabla del menú de productos */}
-      {showMenuTable && (
-        <div className="menu-table-section">
-          <div className="table-header">
-            <h3 className="section-title">Menú de Productos</h3>
-            <div className="table-info">
-              <span className="product-count">
-                Mostrando {Math.min(10, menuProducts.length)} de {menuProducts.length} productos
-              </span>
-            </div>
-          </div>
-          <div className="table-container">
-            <table className="menu-table">
-              <thead>
-                <tr>
-                  <th>Categoría</th>
-                  <th>Nombre</th>
-                  <th>Precio</th>
-                  <th>Disponible</th>
-                </tr>
-              </thead>
-              <tbody>
-                {menuProducts.map((product) => (
-                  <tr key={product.id}>
-                    <td>{product.categoria}</td>
-                    <td>{product.nombre}</td>
-                    <td>{product.precio}</td>
-                    <td>
-                      <input
-                        type="checkbox"
-                        checked={product.disponible}
-                        onChange={() => handleDisponibilidadChange(product.id, !product.disponible)}
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      <div className="menu-table-section">
+        <div className="table-header">
+          <h3 className="section-title">Menú de Productos</h3>
+          <div className="table-info">
+            <span className="product-count">
+              Mostrando {rows.length} de {filteredProducts.length} productos
+            </span>
           </div>
         </div>
-      )}
+
+        <div className="table-toolbar">
+          <div className="toolbar-left">
+            <button title="Agregar producto" onClick={handleAddProduct} disabled={loading}>➕ Producto</button>
+            <button title="Agregar categoría" onClick={handleAddCategory} disabled={loading}>📂➕ Categoría</button>
+          </div>
+
+          <div className="filters">
+            <span title="Filtrar por ID">🔢</span>
+            <input
+              type="number"
+              placeholder="ID"
+              value={idFilter}
+              onChange={(e) => setIdFilter(e.target.value)}
+              style={{ width: 90 }}
+            />
+
+            <span title="Filtrar por nombre">🔤</span>
+            <input
+              type="text"
+              placeholder="Nombre"
+              value={nameFilter}
+              onChange={(e) => {
+                const v = e.target.value;
+                setNameFilter(v);
+                updateFilters({ searchTerm: v });
+                setVisibleCount(20);
+              }}
+            />
+
+            <span title="Filtrar por categoría">📂</span>
+            <select
+              value={categoryFilter}
+              onChange={(e) => {
+                const v = e.target.value;
+                setCategoryFilter(v);
+                updateFilters({ group: v || '' });
+                setVisibleCount(20);
+              }}
+            >
+              <option value="">Todas</option>
+              {getUniqueGroups().map(g => (
+                <option key={g} value={g}>{g}</option>
+              ))}
+            </select>
+
+            <button
+              title="Limpiar filtros"
+              onClick={() => {
+                setIdFilter('');
+                setNameFilter('');
+                setCategoryFilter('');
+                clearFilters();
+                setVisibleCount(20);
+              }}
+            >🧹</button>
+
+            <span title="Buscar/filtrar">🔍</span>
+          </div>
+        </div>
+
+        <div className="table-container scrollable" ref={tableRef}>
+          <table className="menu-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Categoría</th>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Disponible</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((product) => (
+                <tr key={product.id}>
+                  <td>{product.id}</td>
+                  <td>{product.grupo}</td>
+                  <td>{product.nombre}</td>
+                  <td>${Number(product.precio).toFixed(2)}</td>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={!!product.disponibilidad}
+                      onChange={() => handleDisponibilidadChange(product.id, !product.disponibilidad)}
+                      disabled={loading}
+                    />
+                  </td>
+                  <td>
+                    <button title="Editar" onClick={() => handleRowEdit(product)} disabled={loading}>✏️</button>
+                    <button title="Borrar" onClick={() => handleRowDelete(product)} disabled={loading}>🗑️</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {rows.length < filteredProducts.length && (
+          <div style={{ marginTop: 12, textAlign: 'center' }}>
+            <button onClick={() => setVisibleCount(v => Math.min(v + 20, filteredProducts.length))}>
+              Cargar más
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* Información del sistema */}
       <div className="system-info">
