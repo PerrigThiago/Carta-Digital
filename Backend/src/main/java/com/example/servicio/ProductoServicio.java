@@ -35,9 +35,6 @@ public class ProductoServicio {
                 return null;
             }
             
-            if (producto.getCantidad() == null || producto.getCantidad() < 0) {
-                return null;
-            }
             
             if (producto.getGrupo() == null || producto.getGrupo().trim().isEmpty()) {
                 return null;
@@ -60,10 +57,8 @@ public class ProductoServicio {
                 }
             }
             
-            // Lógica de negocio que pensaste:
-            if (producto.getCantidad() == 0) {
-                producto.setDisponibilidad(false);
-            } else {
+            // Lógica de negocio: disponibilidad por defecto es true
+            if (producto.getDisponibilidad() == null) {
                 producto.setDisponibilidad(true);
             }
             
@@ -104,17 +99,8 @@ public class ProductoServicio {
                 productoActual.setPrecio(producto.getPrecio());
             }
             
-            if (producto.getCantidad() != null && producto.getCantidad() >= 0) {
-                productoActual.setCantidad(producto.getCantidad());
-            }
-            
             if (producto.getDisponibilidad() != null) {
                 productoActual.setDisponibilidad(producto.getDisponibilidad());
-            }
-            
-            // Lógica de negocio: si cantidad es 0, marcar como no disponible
-            if (productoActual.getCantidad() == 0) {
-                productoActual.setDisponibilidad(false);
             }
             
             return productoRepositorio.save(productoActual);
@@ -125,63 +111,6 @@ public class ProductoServicio {
         }
     }
     
-    // 3. REDUCIR STOCK (tras ventas)
-    public boolean reducirStock(Long idProducto, Integer cantidadVendida) {
-        try {
-            if (idProducto == null || cantidadVendida == null || cantidadVendida <= 0) {
-                return false;
-            }
-            
-            Optional<Producto> productoOpt = productoRepositorio.findById(idProducto);
-            if (productoOpt.isEmpty()) {
-                return false;
-            }
-            
-            Producto producto = productoOpt.get();
-            
-            // Verificar que hay suficiente stock
-            if (producto.getCantidad() < cantidadVendida) {
-                return false;
-            }
-            
-            // Reducir stock
-            producto.setCantidad(producto.getCantidad() - cantidadVendida);
-            
-            // Si stock llega a 0, marcar como no disponible
-            if (producto.getCantidad() == 0) {
-                producto.setDisponibilidad(false);
-            }
-            
-            productoRepositorio.save(producto);
-            return true;
-            
-        } catch (Exception excepcion) {
-            System.err.println("Error al reducir stock: " + excepcion.getMessage());
-            return false;
-        }
-    }
-    
-    // 4. VERIFICAR STOCK
-    public boolean verificarStock(Long idProducto, Integer cantidadSolicitada) {
-        try {
-            if (idProducto == null || cantidadSolicitada == null || cantidadSolicitada <= 0) {
-                return false;
-            }
-            
-            Optional<Producto> productoOpt = productoRepositorio.findById(idProducto);
-            if (productoOpt.isEmpty()) {
-                return false;
-            }
-            
-            Producto producto = productoOpt.get();
-            
-            return producto.getDisponibilidad() && producto.getCantidad() >= cantidadSolicitada;
-            
-        } catch (Exception excepcion) {
-            System.err.println("Error al verificar stock: " + excepcion.getMessage());
-            return false;
-        }
-    }
     
     // 5. MÉTODOS DE BÚSQUEDA
     public List<Producto> obtenerProductosPorGrupo(String grupo) {
@@ -229,23 +158,6 @@ public class ProductoServicio {
         }
     }
     
-    public List<Producto> obtenerProductosSinStock() {
-        try {
-            return productoRepositorio.findByCantidadLessThanEqual(0);
-        } catch (Exception excepcion) {
-            System.err.println("Error al obtener productos sin stock: " + excepcion.getMessage());
-            return List.of();
-        }
-    }
-    
-    public List<Producto> obtenerProductosConStockBajo() {
-        try {
-            return productoRepositorio.encontrarProductosConStockBajo();
-        } catch (Exception excepcion) {
-            System.err.println("Error al obtener productos con stock bajo: " + excepcion.getMessage());
-            return List.of();
-        }
-    }
     
     // 6. MÉTODOS CRUD BÁSICOS
     public List<Producto> obtenerTodosLosProductos() {

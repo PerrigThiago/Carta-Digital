@@ -53,18 +53,6 @@ public class InicializacionServicio implements CommandLineRunner {
 
         // Crear productos
         List<Producto> productos = Arrays.asList(
-            crearProducto("Pizza Muzzarella", 3500, 20, "Pizzas", "Clásicas", null, "Pizza tradicional con muzzarella y salsa de tomate", true, admin),
-            crearProducto("Pizza Margherita", 3800, 15, "Pizzas", "Clásicas", null, "Pizza con muzzarella, tomate y albahaca", true, admin),
-            crearProducto("Pizza Napolitana", 4200, 12, "Pizzas", "Especiales", null, "Pizza con muzzarella, jamón, tomate y aceitunas", true, admin),
-            crearProducto("Hamburguesa Clásica", 2800, 25, "Hamburguesas", "Carne", null, "Hamburguesa con carne, lechuga, tomate y queso", true, admin),
-            crearProducto("Hamburguesa Doble", 3500, 18, "Hamburguesas", "Carne", null, "Hamburguesa doble carne con todos los aderezos", true, admin),
-            crearProducto("Pollo a la parrilla", 3200, 30, "Carnes", "Pollo", null, "Pechuga de pollo a la parrilla con guarnición", true, admin),
-            crearProducto("Milanesa de ternera", 2900, 22, "Carnes", "Ternera", null, "Milanesa de ternera con papas fritas", true, admin),
-            crearProducto("Ensalada César", 1800, 35, "Ensaladas", "Verdes", null, "Lechuga, crutones, parmesano y aderezo César", true, admin),
-            crearProducto("Coca Cola 500ml", 800, 50, "Bebidas", "Gaseosas", null, "Coca Cola regular 500ml", true, admin),
-            crearProducto("Agua Mineral 500ml", 500, 60, "Bebidas", "Aguas", null, "Agua mineral sin gas 500ml", true, admin),
-            crearProducto("Helado de Vainilla", 1200, 40, "Postres", "Helados", null, "Helado de vainilla con toppings", true, admin),
-            crearProducto("Tiramisú", 1500, 25, "Postres", "Tortas", null, "Tiramisú casero con café y cacao", true, admin)
         );
         
         productoRepositorio.saveAll(productos);
@@ -133,15 +121,11 @@ public class InicializacionServicio implements CommandLineRunner {
         pedidoRepositorio.save(pedido3);
     }
 
-    private Producto crearProducto(String nombre, int precio, int cantidad, String grupo, String subGrupo, 
-                                 byte[] imagen, String descripcion, boolean disponibilidad, Usuario usuario) {
+    private Producto crearProducto(String nombre, int precio, int cantidad, String grupo, String descripcion, boolean disponibilidad, Usuario usuario) {
         Producto producto = new Producto();
         producto.setNombre(nombre);
         producto.setPrecio(precio);
-        producto.setCantidad(cantidad);
         producto.setGrupo(grupo);
-        producto.setSubGrupo(subGrupo);
-        producto.setImagen(imagen);
         producto.setDescripcion(descripcion);
         producto.setDisponibilidad(disponibilidad);
         producto.setUsuario(usuario);

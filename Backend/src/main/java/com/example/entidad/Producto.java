@@ -21,17 +21,8 @@ public class Producto {
     @Column(name = "precio", nullable = false)
     private Integer precio;
     
-    @Column(name = "cantidad", nullable = false)
-    private Integer cantidad;
-    
     @Column(name = "grupo", nullable = false, length = 50)
     private String grupo;
-    
-    @Column(name = "sub_grupo", length = 50)
-    private String subGrupo;
-    
-    @Column(name = "imagen", columnDefinition = "LONGBLOB")
-    private byte[] imagen;
     
     @Column(name = "descripcion", length = 255)
     private String descripcion;

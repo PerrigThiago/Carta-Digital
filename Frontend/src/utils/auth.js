@@ -134,14 +134,26 @@ export const apiClient = {
       headers.Authorization = `Bearer ${token}`;
     }
 
+    console.log('GET Request:', `${API_BASE_URL}${url}`);
+
     const response = await fetch(`${API_BASE_URL}${url}`, { 
       ...options, 
       headers,
       method: 'GET'
     });
 
+    console.log('GET Response:', response.status, response.statusText);
+
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      let errorMessage = `HTTP error! status: ${response.status}`;
+      try {
+        const errorText = await response.text();
+        errorMessage = errorText || errorMessage;
+        console.error('GET Error:', errorText);
+      } catch (e) {
+        console.error('Error leyendo respuesta de error:', e);
+      }
+      throw new Error(errorMessage);
     }
 
     return response.json();
@@ -158,6 +170,8 @@ export const apiClient = {
       headers.Authorization = `Bearer ${token}`;
     }
 
+    console.log('POST Request:', `${API_BASE_URL}${url}`, data);
+
     const response = await fetch(`${API_BASE_URL}${url}`, {
       method: 'POST',
       headers,
@@ -165,11 +179,30 @@ export const apiClient = {
       ...options
     });
 
+    console.log('POST Response:', response.status, response.statusText);
+
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      let errorMessage = `HTTP error! status: ${response.status}`;
+      try {
+        const errorText = await response.text();
+        errorMessage = errorText || errorMessage;
+        console.error('POST Error:', errorText);
+      } catch (e) {
+        console.error('Error leyendo respuesta de error:', e);
+      }
+      throw new Error(errorMessage);
     }
 
-    return response.json();
+    // Intentar parsear como JSON, si falla devolver texto
+    try {
+      const jsonResponse = await response.json();
+      console.log('POST Success JSON:', jsonResponse);
+      return jsonResponse;
+    } catch (e) {
+      const textResponse = await response.text();
+      console.log('POST Success Text:', textResponse);
+      return textResponse;
+    }
   },
 
   put: async (url, data, options = {}) => {
@@ -183,6 +216,8 @@ export const apiClient = {
       headers.Authorization = `Bearer ${token}`;
     }
 
+    console.log('PUT Request:', `${API_BASE_URL}${url}`, data);
+
     const response = await fetch(`${API_BASE_URL}${url}`, {
       method: 'PUT',
       headers,
@@ -190,11 +225,30 @@ export const apiClient = {
       ...options
     });
 
+    console.log('PUT Response:', response.status, response.statusText);
+
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      let errorMessage = `HTTP error! status: ${response.status}`;
+      try {
+        const errorText = await response.text();
+        errorMessage = errorText || errorMessage;
+        console.error('PUT Error:', errorText);
+      } catch (e) {
+        console.error('Error leyendo respuesta de error:', e);
+      }
+      throw new Error(errorMessage);
     }
 
-    return response.json();
+    // Intentar parsear como JSON, si falla devolver texto
+    try {
+      const jsonResponse = await response.json();
+      console.log('PUT Success JSON:', jsonResponse);
+      return jsonResponse;
+    } catch (e) {
+      const textResponse = await response.text();
+      console.log('PUT Success Text:', textResponse);
+      return textResponse;
+    }
   },
 
   delete: async (url, options = {}) => {
@@ -208,16 +262,37 @@ export const apiClient = {
       headers.Authorization = `Bearer ${token}`;
     }
 
+    console.log('DELETE Request:', `${API_BASE_URL}${url}`);
+
     const response = await fetch(`${API_BASE_URL}${url}`, {
       method: 'DELETE',
       headers,
       ...options
     });
 
+    console.log('DELETE Response:', response.status, response.statusText);
+
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      let errorMessage = `HTTP error! status: ${response.status}`;
+      try {
+        const errorText = await response.text();
+        errorMessage = errorText || errorMessage;
+        console.error('DELETE Error:', errorText);
+      } catch (e) {
+        console.error('Error leyendo respuesta de error:', e);
+      }
+      throw new Error(errorMessage);
     }
 
-    return response.json();
+    // Intentar parsear como JSON, si falla devolver texto
+    try {
+      const jsonResponse = await response.json();
+      console.log('DELETE Success JSON:', jsonResponse);
+      return jsonResponse;
+    } catch (e) {
+      const textResponse = await response.text();
+      console.log('DELETE Success Text:', textResponse);
+      return textResponse;
+    }
   }
 };

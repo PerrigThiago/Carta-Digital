@@ -119,49 +119,6 @@ public class ProductoControlador {
         return ResponseEntity.ok(productos);
     }
     
-    // GET - Productos con stock bajo (para administradores)
-    @GetMapping("/stock-bajo")
-    public ResponseEntity<List<Producto>> obtenerProductosConStockBajo() {
-        List<Producto> productos = productoServicio.obtenerProductosConStockBajo();
-        return ResponseEntity.ok(productos);
-    }
-    
-    // GET - Productos sin stock
-    @GetMapping("/sin-stock")
-    public ResponseEntity<List<Producto>> obtenerProductosSinStock() {
-        List<Producto> productos = productoServicio.obtenerProductosSinStock();
-        return ResponseEntity.ok(productos);
-    }
-    
-    // POST - Reducir stock (para ventas)
-    @PostMapping("/{id}/reducir-stock")
-    public ResponseEntity<?> reducirStock(
-            @PathVariable Long id,
-            @RequestParam Integer cantidad) {
-        
-        boolean stockReducido = productoServicio.reducirStock(id, cantidad);
-        
-        if (stockReducido) {
-            return ResponseEntity.ok("Stock reducido correctamente");
-        } else {
-            return ResponseEntity.badRequest().body("Stock insuficiente o producto no encontrado");
-        }
-    }
-    
-    // GET - Verificar stock
-    @GetMapping("/{id}/verificar-stock")
-    public ResponseEntity<?> verificarStock(
-            @PathVariable Long id,
-            @RequestParam Integer cantidad) {
-        
-        boolean hayStock = productoServicio.verificarStock(id, cantidad);
-        
-        if (hayStock) {
-            return ResponseEntity.ok("Stock disponible");
-        } else {
-            return ResponseEntity.ok("Stock insuficiente");
-        }
-    }
     
     // GET - Productos por usuario (administrador)
     @GetMapping("/usuario/{usuarioId}")
@@ -177,14 +134,14 @@ public class ProductoControlador {
         try {
             // Contar productos por disponibilidad
             List<Producto> disponibles = productoServicio.obtenerProductosDisponibles();
-            List<Producto> sinStock = productoServicio.obtenerProductosSinStock();
-            List<Producto> stockBajo = productoServicio.obtenerProductosConStockBajo();
+            List<Producto> noDisponibles = productoServicio.obtenerTodosLosProductos().stream()
+                .filter(p -> !p.getDisponibilidad())
+                .toList();
             
             // Crear objeto de estadísticas
             Map<String, Integer> estadisticas = Map.of(
                 "totalDisponibles", disponibles.size(),
-                "totalSinStock", sinStock.size(),
-                "totalStockBajo", stockBajo.size(),
+                "totalNoDisponibles", noDisponibles.size(),
                 "totalProductos", productoServicio.obtenerTodosLosProductos().size()
             );
             

@@ -62,14 +62,4 @@ export const productService = {
     }
   },
 
-  // Obtener productos por subgrupo
-  getProductsBySubGroup: async (subGroup) => {
-    try {
-      const products = await apiClient.get('/productos');
-      return products.filter(product => product.subGrupo === subGroup);
-    } catch (error) {
-      console.error('Error obteniendo productos por subgrupo:', error);
-      throw error;
-    }
-  }
 };

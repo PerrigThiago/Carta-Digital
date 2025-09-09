@@ -8,7 +8,6 @@ export const useProducts = () => {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [filters, setFilters] = useState({
     group: '',
-    subGroup: '',
     searchTerm: '',
     availability: 'all'
   });
@@ -18,12 +17,16 @@ export const useProducts = () => {
     setLoading(true);
     setError(null);
     try {
+      console.log('Cargando productos...');
       const data = await productService.getAllProducts();
-      setProducts(data);
-      setFilteredProducts(data);
+      console.log('Productos cargados:', data);
+      setProducts(data || []);
+      setFilteredProducts(data || []);
     } catch (err) {
-      setError(err.message);
       console.error('Error cargando productos:', err);
+      setError(err.message || 'Error cargando productos');
+      setProducts([]);
+      setFilteredProducts([]);
     } finally {
       setLoading(false);
     }
@@ -34,12 +37,18 @@ export const useProducts = () => {
     setLoading(true);
     setError(null);
     try {
+      console.log('Creando producto:', productData);
       const newProduct = await productService.createProduct(productData);
+      console.log('Producto creado:', newProduct);
+      
+      // Actualizar la lista local
       setProducts(prev => [...prev, newProduct]);
       setFilteredProducts(prev => [...prev, newProduct]);
+      
       return newProduct;
     } catch (err) {
-      setError(err.message);
+      console.error('Error creando producto:', err);
+      setError(err.message || 'Error creando producto');
       throw err;
     } finally {
       setLoading(false);
@@ -51,12 +60,18 @@ export const useProducts = () => {
     setLoading(true);
     setError(null);
     try {
+      console.log('Actualizando producto:', id, productData);
       const updatedProduct = await productService.updateProduct(id, productData);
+      console.log('Producto actualizado:', updatedProduct);
+      
+      // Actualizar la lista local
       setProducts(prev => prev.map(p => p.id === id ? updatedProduct : p));
       setFilteredProducts(prev => prev.map(p => p.id === id ? updatedProduct : p));
+      
       return updatedProduct;
     } catch (err) {
-      setError(err.message);
+      console.error('Error actualizando producto:', err);
+      setError(err.message || 'Error actualizando producto');
       throw err;
     } finally {
       setLoading(false);
@@ -68,11 +83,18 @@ export const useProducts = () => {
     setLoading(true);
     setError(null);
     try {
-      await productService.deleteProduct(id);
+      console.log('Eliminando producto:', id);
+      const result = await productService.deleteProduct(id);
+      console.log('Producto eliminado:', result);
+      
+      // Actualizar la lista local
       setProducts(prev => prev.filter(p => p.id !== id));
       setFilteredProducts(prev => prev.filter(p => p.id !== id));
+      
+      return result;
     } catch (err) {
-      setError(err.message);
+      console.error('Error eliminando producto:', err);
+      setError(err.message || 'Error eliminando producto');
       throw err;
     } finally {
       setLoading(false);
@@ -87,9 +109,6 @@ export const useProducts = () => {
       filtered = filtered.filter(p => p.grupo === filters.group);
     }
 
-    if (filters.subGroup) {
-      filtered = filtered.filter(p => p.subGrupo === filters.subGroup);
-    }
 
     if (filters.searchTerm) {
       filtered = filtered.filter(p => 
@@ -115,7 +134,6 @@ export const useProducts = () => {
   const clearFilters = useCallback(() => {
     setFilters({
       group: '',
-      subGroup: '',
       searchTerm: '',
       availability: 'all'
     });
@@ -123,13 +141,11 @@ export const useProducts = () => {
 
   // Obtener grupos únicos
   const getUniqueGroups = useCallback(() => {
-    return [...new Set(products.map(p => p.grupo))];
+    const groups = [...new Set(products.map(p => p.grupo).filter(Boolean))];
+    console.log('Grupos únicos:', groups);
+    return groups;
   }, [products]);
 
-  // Obtener subgrupos únicos
-  const getUniqueSubGroups = useCallback(() => {
-    return [...new Set(products.map(p => p.subGrupo).filter(Boolean))];
-  }, [products]);
 
   // Cargar productos al montar el componente
   useEffect(() => {
@@ -153,7 +169,6 @@ export const useProducts = () => {
     deleteProduct,
     updateFilters,
     clearFilters,
-    getUniqueGroups,
-    getUniqueSubGroups
+    getUniqueGroups
   };
 };
