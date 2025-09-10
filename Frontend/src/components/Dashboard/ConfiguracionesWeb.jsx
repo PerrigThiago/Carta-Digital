@@ -1,69 +1,131 @@
 import React, { useState, useEffect } from 'react';
-import { useTheme } from '../../context/ThemeContext';
 import './ConfiguracionesWeb.css';
 
 const ConfiguracionesWeb = () => {
-  const { theme, changeTheme } = useTheme();
   const [activeTab, setActiveTab] = useState('general');
-  const [configData, setConfigData] = useState({
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('');
+  
+  // Datos por defecto
+  const defaultConfigData = {
     nombreRestaurante: 'FrontRoti Pizza',
     direccion: 'Calle Principal 123, Ciudad',
     telefono: '+1 234 567 8900',
     email: 'info@frontroti.com',
     horarioApertura: '09:00',
-    horarioCierre: '22:00',
-    moneda: 'USD',
-    zonaHoraria: 'America/New_York',
-    idioma: 'es',
-    tema: theme // Usar el tema del contexto
-  });
+    horarioCierre: '22:00'
+  };
 
-  const [notificaciones, setNotificaciones] = useState({
-    emailPedidos: true,
-    emailResenas: true,
-    smsConfirmacion: false,
-    pushNotificaciones: true,
-    recordatorios: true
-  });
+  const [configData, setConfigData] = useState(defaultConfigData);
 
-  const [seguridad, setSeguridad] = useState({
-    autenticacionDosFactores: false,
-    sesionesSimultaneas: true,
-    tiempoExpiracionSesion: 30,
-    registroUsuarios: true,
-    verificarEmail: true
-  });
+  // Funciones para manejar localStorage
+  const saveConfigToStorage = (data) => {
+    try {
+      localStorage.setItem('restaurantConfig', JSON.stringify(data));
+      console.log('Configuración guardada en localStorage:', data);
+    } catch (error) {
+      console.error('Error al guardar en localStorage:', error);
+    }
+  };
+
+  const loadConfigFromStorage = () => {
+    try {
+      const savedConfig = localStorage.getItem('restaurantConfig');
+      if (savedConfig) {
+        const parsedConfig = JSON.parse(savedConfig);
+        console.log('Configuración cargada desde localStorage:', parsedConfig);
+        return parsedConfig;
+      }
+    } catch (error) {
+      console.error('Error al cargar desde localStorage:', error);
+    }
+    return defaultConfigData;
+  };
+
+  // Cargar datos al inicializar el componente
+  useEffect(() => {
+    const savedConfig = loadConfigFromStorage();
+    setConfigData(savedConfig);
+  }, []);
+
 
   const handleConfigChange = (key, value) => {
     setConfigData(prev => ({
       ...prev,
       [key]: value
     }));
+  };
+
+  const validateConfig = () => {
+    const errors = [];
     
-    // Si se cambia el tema, aplicarlo inmediatamente
-    if (key === 'tema') {
-      changeTheme(value);
+    if (!configData.nombreRestaurante.trim()) {
+      errors.push('El nombre del restaurante es requerido');
     }
+    
+    if (!configData.direccion.trim()) {
+      errors.push('La dirección es requerida');
+    }
+    
+    if (!configData.telefono.trim()) {
+      errors.push('El teléfono es requerido');
+    }
+    
+    if (!configData.email.trim()) {
+      errors.push('El email es requerido');
+    } else if (!/\S+@\S+\.\S+/.test(configData.email)) {
+      errors.push('El email no tiene un formato válido');
+    }
+    
+    if (!configData.horarioApertura) {
+      errors.push('El horario de apertura es requerido');
+    }
+    
+    if (!configData.horarioCierre) {
+      errors.push('El horario de cierre es requerido');
+    }
+    
+    if (configData.horarioApertura && configData.horarioCierre) {
+      if (configData.horarioApertura >= configData.horarioCierre) {
+        errors.push('El horario de apertura debe ser anterior al horario de cierre');
+      }
+    }
+    
+    return errors;
   };
 
-  const handleNotificacionChange = (key, value) => {
-    setNotificaciones(prev => ({
-      ...prev,
-      [key]: value
-    }));
-  };
+  const handleSaveConfig = async () => {
+    // Validar datos
+    const errors = validateConfig();
+    if (errors.length > 0) {
+      setSaveMessage(`❌ Errores encontrados: ${errors.join(', ')}`);
+      setTimeout(() => setSaveMessage(''), 5000);
+      return;
+    }
 
-  const handleSeguridadChange = (key, value) => {
-    setSeguridad(prev => ({
-      ...prev,
-      [key]: value
-    }));
-  };
+    setIsSaving(true);
+    setSaveMessage('');
 
-  const handleSaveConfig = () => {
-    console.log('Guardando configuración:', configData);
-    // Aquí iría la lógica para guardar en el backend
-    alert('Configuración guardada exitosamente');
+    try {
+      // Simular llamada al backend
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Guardar en localStorage para persistencia
+      saveConfigToStorage(configData);
+      
+      // Aquí iría la lógica real para guardar en el backend
+      console.log('Guardando configuración:', configData);
+      
+      setSaveMessage('✅ Configuración guardada exitosamente');
+      setTimeout(() => setSaveMessage(''), 3000);
+      
+    } catch (error) {
+      console.error('Error al guardar:', error);
+      setSaveMessage('❌ Error al guardar la configuración');
+      setTimeout(() => setSaveMessage(''), 5000);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleBackup = () => {
@@ -76,13 +138,15 @@ const ConfiguracionesWeb = () => {
     alert('Restauración iniciada. El sistema se reiniciará.');
   };
 
-  // Sincronizar el tema del estado local con el contexto
-  useEffect(() => {
-    setConfigData(prev => ({
-      ...prev,
-      tema: theme
-    }));
-  }, [theme]);
+  const handleResetConfig = () => {
+    if (window.confirm('¿Estás seguro de que quieres restaurar la configuración a los valores por defecto? Esta acción no se puede deshacer.')) {
+      setConfigData(defaultConfigData);
+      saveConfigToStorage(defaultConfigData);
+      setSaveMessage('✅ Configuración restaurada a valores por defecto');
+      setTimeout(() => setSaveMessage(''), 3000);
+    }
+  };
+
 
   return (
     <div className="configuraciones-web-container">
@@ -93,18 +157,6 @@ const ConfiguracionesWeb = () => {
           onClick={() => setActiveTab('general')}
         >
           ⚙️ Configuración General
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'notificaciones' ? 'active' : ''}`}
-          onClick={() => setActiveTab('notificaciones')}
-        >
-          🔔 Notificaciones
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'seguridad' ? 'active' : ''}`}
-          onClick={() => setActiveTab('seguridad')}
-        >
-          🔒 Seguridad
         </button>
         <button 
           className={`tab-button ${activeTab === 'backup' ? 'active' : ''}`}
@@ -169,7 +221,7 @@ const ConfiguracionesWeb = () => {
             </div>
 
             <div className="form-section">
-              <h4>Horarios y Configuración Regional</h4>
+              <h4>Horarios</h4>
               <div className="form-row">
                 <div className="form-group">
                   <label>Horario de Apertura</label>
@@ -190,279 +242,36 @@ const ConfiguracionesWeb = () => {
                   />
                 </div>
               </div>
-              
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Moneda</label>
-                  <select
-                    value={configData.moneda}
-                    onChange={(e) => handleConfigChange('moneda', e.target.value)}
-                    className="form-control"
-                  >
-                    <option value="USD">USD - Dólar Estadounidense</option>
-                    <option value="EUR">EUR - Euro</option>
-                    <option value="MXN">MXN - Peso Mexicano</option>
-                    <option value="ARS">ARS - Peso Argentino</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label>Zona Horaria</label>
-                  <select
-                    value={configData.zonaHoraria}
-                    onChange={(e) => handleConfigChange('zonaHoraria', e.target.value)}
-                    className="form-control"
-                  >
-                    <option value="America/New_York">Eastern Time (ET)</option>
-                    <option value="America/Chicago">Central Time (CT)</option>
-                    <option value="America/Denver">Mountain Time (MT)</option>
-                    <option value="America/Los_Angeles">Pacific Time (PT)</option>
-                    <option value="America/Mexico_City">Ciudad de México</option>
-                    <option value="America/Argentina/Buenos_Aires">Buenos Aires</option>
-                  </select>
-                </div>
-              </div>
             </div>
-
-            <div className="form-section">
-              <h4>Preferencias de Interfaz</h4>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Idioma</label>
-                  <select
-                    value={configData.idioma}
-                    onChange={(e) => handleConfigChange('idioma', e.target.value)}
-                    className="form-control"
-                  >
-                    <option value="es">Español</option>
-                    <option value="en">English</option>
-                    <option value="pt">Português</option>
-                  </select>
-                </div>
-                                 <div className="form-group">
-                   <label>Tema</label>
-                   <div className="theme-selector">
-                     <select
-                       value={configData.tema}
-                       onChange={(e) => handleConfigChange('tema', e.target.value)}
-                       className="form-control"
-                     >
-                       <option value="claro">☀️ Claro</option>
-                       <option value="oscuro">🌙 Oscuro</option>
-                       <option value="auto">🔄 Automático</option>
-                     </select>
-                     <div className="theme-preview">
-                       <span className="theme-indicator">
-                         {configData.tema === 'claro' && '☀️'}
-                         {configData.tema === 'oscuro' && '🌙'}
-                         {configData.tema === 'auto' && '🔄'}
-                       </span>
-                       <span className="theme-status">
-                         {configData.tema === 'auto' ? 'Siguiendo preferencia del sistema' : 
-                          configData.tema === 'oscuro' ? 'Modo oscuro activo' : 'Modo claro activo'}
-                       </span>
-                     </div>
-                   </div>
-                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Configuración de Notificaciones */}
-      {activeTab === 'notificaciones' && (
-        <div className="tab-content">
-          <div className="content-header">
-            <h3>Configuración de Notificaciones</h3>
-            <p className="subtitle">Gestiona cómo y cuándo recibir notificaciones</p>
-          </div>
-          
-          <div className="notifications-config">
-            <div className="notification-section">
-              <h4>Notificaciones por Email</h4>
-              <div className="notification-item">
-                <label className="switch-label">
-                  <input
-                    type="checkbox"
-                    checked={notificaciones.emailPedidos}
-                    onChange={(e) => handleNotificacionChange('emailPedidos', e.target.checked)}
-                  />
-                  <span className="switch"></span>
-                  Notificaciones de nuevos pedidos
-                </label>
-                <p className="notification-description">
-                  Recibe un email cada vez que se realice un nuevo pedido
-                </p>
-              </div>
-              
-              <div className="notification-item">
-                <label className="switch-label">
-                  <input
-                    type="checkbox"
-                    checked={notificaciones.emailResenas}
-                    onChange={(e) => handleNotificacionChange('emailResenas', e.target.checked)}
-                  />
-                  <span className="switch"></span>
-                  Notificaciones de nuevas reseñas
-                </label>
-                <p className="notification-description">
-                  Recibe un email cuando un cliente deje una reseña
-                </p>
-              </div>
-            </div>
-
-            <div className="notification-section">
-              <h4>Notificaciones por SMS</h4>
-              <div className="notification-item">
-                <label className="switch-label">
-                  <input
-                    type="checkbox"
-                    checked={notificaciones.smsConfirmacion}
-                    onChange={(e) => handleNotificacionChange('smsConfirmacion', e.target.checked)}
-                  />
-                  <span className="switch"></span>
-                  Confirmaciones por SMS
-                </label>
-                <p className="notification-description">
-                  Envía confirmaciones de pedidos por mensaje de texto
-                </p>
-              </div>
-            </div>
-
-            <div className="notification-section">
-              <h4>Notificaciones del Sistema</h4>
-              <div className="notification-item">
-                <label className="switch-label">
-                  <input
-                    type="checkbox"
-                    checked={notificaciones.pushNotificaciones}
-                    onChange={(e) => handleNotificacionChange('pushNotificaciones', e.target.checked)}
-                  />
-                  <span className="switch"></span>
-                  Notificaciones push del navegador
-                </label>
-                <p className="notification-description">
-                  Recibe notificaciones en tiempo real en tu navegador
-                </p>
-              </div>
-              
-              <div className="notification-item">
-                <label className="switch-label">
-                  <input
-                    type="checkbox"
-                    checked={notificaciones.recordatorios}
-                    onChange={(e) => handleNotificacionChange('recordatorios', e.target.checked)}
-                  />
-                  <span className="switch"></span>
-                  Recordatorios y alertas
-                </label>
-                <p className="notification-description">
-                  Recibe recordatorios de tareas pendientes y alertas importantes
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Configuración de Seguridad */}
-      {activeTab === 'seguridad' && (
-        <div className="tab-content">
-          <div className="content-header">
-            <h3>Configuración de Seguridad</h3>
-            <p className="subtitle">Gestiona la seguridad de tu cuenta y sistema</p>
-          </div>
-          
-          <div className="security-config">
-            <div className="security-section">
-              <h4>Autenticación</h4>
-              <div className="security-item">
-                <label className="switch-label">
-                  <input
-                    type="checkbox"
-                    checked={seguridad.autenticacionDosFactores}
-                    onChange={(e) => handleSeguridadChange('autenticacionDosFactores', e.target.checked)}
-                  />
-                  <span className="switch"></span>
-                  Autenticación de dos factores (2FA)
-                </label>
-                <p className="security-description">
-                  Agrega una capa extra de seguridad a tu cuenta
-                </p>
-              </div>
-              
-              <div className="security-item">
-                <label className="switch-label">
-                  <input
-                    type="checkbox"
-                    checked={seguridad.sesionesSimultaneas}
-                    onChange={(e) => handleSeguridadChange('sesionesSimultaneas', e.target.checked)}
-                  />
-                  <span className="switch"></span>
-                  Permitir múltiples sesiones
-                </label>
-                <p className="security-description">
-                  Accede desde múltiples dispositivos simultáneamente
-                </p>
-              </div>
-            </div>
-
-            <div className="security-section">
-              <h4>Gestión de Sesiones</h4>
-              <div className="security-item">
-                <label>Tiempo de expiración de sesión (minutos)</label>
-                <select
-                  value={seguridad.tiempoExpiracionSesion}
-                  onChange={(e) => handleSeguridadChange('tiempoExpiracionSesion', parseInt(e.target.value))}
-                  className="form-control"
+            
+            {/* Botones de acción */}
+            <div className="form-actions">
+              <div className="action-buttons">
+                <button 
+                  className="btn-save" 
+                  onClick={handleSaveConfig}
+                  disabled={isSaving}
                 >
-                  <option value={15}>15 minutos</option>
-                  <option value={30}>30 minutos</option>
-                  <option value={60}>1 hora</option>
-                  <option value={120}>2 horas</option>
-                  <option value={480}>8 horas</option>
-                </select>
-                <p className="security-description">
-                  Después de este tiempo, deberás volver a iniciar sesión
-                </p>
+                  {isSaving ? '⏳ Guardando...' : '💾 Guardar Configuración'}
+                </button>
+                <button 
+                  className="btn-reset" 
+                  onClick={handleResetConfig}
+                  disabled={isSaving}
+                >
+                  🔄 Restaurar Valores por Defecto
+                </button>
               </div>
-            </div>
-
-            <div className="security-section">
-              <h4>Registro de Usuarios</h4>
-              <div className="security-item">
-                <label className="switch-label">
-                  <input
-                    type="checkbox"
-                    checked={seguridad.registroUsuarios}
-                    onChange={(e) => handleSeguridadChange('registroUsuarios', e.target.checked)}
-                  />
-                  <span className="switch"></span>
-                  Permitir registro de nuevos usuarios
-                </label>
-                <p className="security-description">
-                  Los usuarios podrán crear cuentas por su cuenta
-                </p>
-              </div>
-              
-              <div className="security-item">
-                <label className="switch-label">
-                  <input
-                    type="checkbox"
-                    checked={seguridad.verificarEmail}
-                    onChange={(e) => handleSeguridadChange('verificarEmail', e.target.checked)}
-                  />
-                  <span className="switch"></span>
-                  Verificación de email obligatoria
-                </label>
-                <p className="security-description">
-                  Los usuarios deben verificar su email antes de usar la cuenta
-                </p>
-              </div>
+              {saveMessage && (
+                <div className={`save-message ${saveMessage.includes('✅') ? 'success' : 'error'}`}>
+                  {saveMessage}
+                </div>
+              )}
             </div>
           </div>
         </div>
       )}
+
 
       {/* Backup y Restauración */}
       {activeTab === 'backup' && (
@@ -532,27 +341,6 @@ const ConfiguracionesWeb = () => {
           </div>
         </div>
       )}
-
-      {/* Botones de acción */}
-      <div className="config-actions">
-        <button className="btn-secondary" onClick={() => setConfigData({
-          nombreRestaurante: 'FrontRoti Pizza',
-          direccion: 'Calle Principal 123, Ciudad',
-          telefono: '+1 234 567 8900',
-          email: 'info@frontroti.com',
-          horarioApertura: '09:00',
-          horarioCierre: '22:00',
-          moneda: 'USD',
-          zonaHoraria: 'America/New_York',
-          idioma: 'es',
-          tema: 'claro'
-        })}>
-          🔄 Restaurar Valores
-        </button>
-        <button className="btn-primary" onClick={handleSaveConfig}>
-          💾 Guardar Cambios
-        </button>
-      </div>
     </div>
   );
 };
