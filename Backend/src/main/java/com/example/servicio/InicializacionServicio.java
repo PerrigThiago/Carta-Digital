@@ -53,6 +53,11 @@ public class InicializacionServicio implements CommandLineRunner {
 
         // Crear productos
         List<Producto> productos = Arrays.asList(
+            crearProducto("Pizza Margherita", 2500, "Pizzas", "Pizza con tomate, mozzarella y albahaca", true, admin),
+            crearProducto("Hamburguesa Clásica", 1800, "Hamburguesas", "Hamburguesa con lechuga, tomate y cebolla", true, admin),
+            crearProducto("Ensalada César", 1200, "Ensaladas", "Ensalada con lechuga, pollo, crutones y aderezo césar", true, admin),
+            crearProducto("Coca Cola 500ml", 800, "Bebidas", "Bebida gaseosa", true, admin),
+            crearProducto("Agua Mineral", 500, "Bebidas", "Agua mineral sin gas", true, admin)
         );
         
         productoRepositorio.saveAll(productos);
@@ -121,7 +126,7 @@ public class InicializacionServicio implements CommandLineRunner {
         pedidoRepositorio.save(pedido3);
     }
 
-    private Producto crearProducto(String nombre, int precio, int cantidad, String grupo, String descripcion, boolean disponibilidad, Usuario usuario) {
+    private Producto crearProducto(String nombre, int precio, String grupo, String descripcion, boolean disponibilidad, Usuario usuario) {
         Producto producto = new Producto();
         producto.setNombre(nombre);
         producto.setPrecio(precio);
