@@ -16,13 +16,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.example.entidad.Producto;
 import com.example.servicio.ProductoServicio;
 
 @RestController
 @RequestMapping("/api/productos")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS})
 public class ProductoControlador {
     
     @Autowired
@@ -33,12 +34,23 @@ public class ProductoControlador {
     // POST - Crear producto
     @PostMapping
     public ResponseEntity<?> crearProducto(@RequestBody Producto producto) {
-        Producto productoCreado = productoServicio.crearProducto(producto);
+        try {
+            System.out.println("=== CONTROLADOR: Crear Producto ===");
+            System.out.println("Producto recibido en controlador: " + producto);
+            
+            Producto productoCreado = productoServicio.crearProducto(producto);
 
-        if (productoCreado != null) {
-            return ResponseEntity.ok(productoCreado);
-        } else {
-            return ResponseEntity.badRequest().body("No se puedo crear el producto");
+            if (productoCreado != null) {
+                System.out.println("Producto creado exitosamente en controlador: " + productoCreado.getId());
+                return ResponseEntity.ok(productoCreado);
+            } else {
+                System.err.println("ERROR: El servicio retornó null al crear producto");
+                return ResponseEntity.badRequest().body("No se pudo crear el producto. Verifique que el nombre no esté duplicado y que todos los campos sean válidos.");
+            }
+        } catch (Exception e) {
+            System.err.println("ERROR en controlador al crear producto: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Error interno del servidor: " + e.getMessage());
         }
     }
 
@@ -67,11 +79,11 @@ public class ProductoControlador {
         producto.setId(id);
         Producto productoActualizado = productoServicio.actualizarProducto(id, producto);
 
-        if (productoActualizado != null) {
-            return ResponseEntity.ok(productoActualizado);
-        } else {
-            return ResponseEntity.badRequest().body("No se puedo actualizar el producto");
-        }
+            if (productoActualizado != null) {
+                return ResponseEntity.ok(productoActualizado);
+            } else {
+                return ResponseEntity.badRequest().body("No se pudo actualizar el producto. Verifique que el nombre no esté duplicado y que todos los campos sean válidos.");
+            }
     }
 
     // DELETE - Eliminar producto
@@ -83,6 +95,29 @@ public class ProductoControlador {
             return ResponseEntity.ok("Producto eliminado correctamente");
         } else {
             return ResponseEntity.badRequest().body("No se puedo eliminar el producto");
+        }
+    }
+
+    // DELETE - Eliminar categoría y todos sus productos
+    @DeleteMapping("/categoria/{categoria}")
+    public ResponseEntity<String> eliminarCategoria(@PathVariable String categoria) {
+        try {
+            System.out.println("=== CONTROLADOR: Eliminar Categoría ===");
+            System.out.println("Categoría recibida: " + categoria);
+            
+            boolean eliminado = productoServicio.eliminarProductosPorCategoria(categoria);
+
+            if (eliminado) {
+                System.out.println("Categoría eliminada exitosamente en controlador");
+                return ResponseEntity.ok("Categoría y todos sus productos eliminados correctamente");
+            } else {
+                System.err.println("ERROR: El servicio retornó false al eliminar categoría");
+                return ResponseEntity.badRequest().body("No se pudo eliminar la categoría");
+            }
+        } catch (Exception e) {
+            System.err.println("ERROR en controlador al eliminar categoría: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Error interno del servidor: " + e.getMessage());
         }
     }
 

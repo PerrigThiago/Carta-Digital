@@ -9,6 +9,14 @@ const Menu = () => {
   const [categoryFilter, setCategoryFilter] = useState('');
   const [visibleCount, setVisibleCount] = useState(50);
   const tableRef = useRef(null);
+  const [extraCategories, setExtraCategories] = useState(() => {
+    try {
+      const saved = localStorage.getItem('extraCategories');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
 
   // Hook de productos
   const { 
@@ -19,6 +27,7 @@ const Menu = () => {
     createProduct, 
     updateProduct, 
     deleteProduct,
+    deleteCategory,
     updateFilters, 
     clearFilters, 
     getUniqueGroups 
@@ -51,14 +60,12 @@ const Menu = () => {
         return;
       }
       
-      const userId = getCurrentUserId();
-      
       await updateProduct(productId, { 
         disponibilidad: disponible,
         nombre: product.nombre,
         precio: product.precio,
         grupo: product.grupo,
-        id_usuario: userId
+        // backend toma el usuario del contexto, no enviar
       });
       
       console.log(`Producto ${productId} - Disponibilidad actualizada: ${disponible}`);
@@ -88,6 +95,13 @@ const Menu = () => {
       return;
     }
     
+    // Verificar si ya existe un producto con ese nombre
+    const nombreExistente = products.find(p => p.nombre.toLowerCase() === nombre.trim().toLowerCase());
+    if (nombreExistente) {
+      alert(`Ya existe un producto con el nombre "${nombre.trim()}". Elige otro nombre.`);
+      return;
+    }
+    
     const precioStr = prompt('Precio del producto:');
     const precio = Number(precioStr);
     if (Number.isNaN(precio) || precio <= 0) {
@@ -100,17 +114,26 @@ const Menu = () => {
       alert('La categoría no puede estar vacía');
       return;
     }
+    // Validar que la categoría exista en el desplegable
+    const cleanGroup = grupo.trim();
+    const allowedGroups = Array.from(new Set([...(getUniqueGroups ? getUniqueGroups() : []), ...extraCategories])).filter(Boolean);
+    if (!allowedGroups.includes(cleanGroup)) {
+      alert(`La categoría "${cleanGroup}" no existe. Primero crea la categoría y luego vuelve a intentarlo.`);
+      return;
+    }
     
     try {
       const userId = getCurrentUserId();
-      
-      await createProduct({ 
+      const productData = { 
         nombre: nombre.trim(), 
         precio: Math.round(precio),
-        grupo: grupo.trim(), 
+        grupo: cleanGroup, 
         disponibilidad: true,
-        id_usuario: userId
-      });
+        usuario: { id: userId }
+      };
+      console.log('Enviando datos del producto:', productData);
+      console.log('User ID:', userId);
+      await createProduct(productData);
       
       alert('Producto creado exitosamente');
     } catch (e) {
@@ -125,6 +148,16 @@ const Menu = () => {
     const nuevoNombre = prompt(`Editar nombre del producto:`, product.nombre);
     if (!nuevoNombre || nuevoNombre.trim() === '') {
       alert('El nombre no puede estar vacío');
+      return;
+    }
+    
+    // Verificar si ya existe otro producto con ese nombre (excluyendo el actual)
+    const nombreExistente = products.find(p => 
+      p.id !== product.id && 
+      p.nombre.toLowerCase() === nuevoNombre.trim().toLowerCase()
+    );
+    if (nombreExistente) {
+      alert(`Ya existe otro producto con el nombre "${nuevoNombre.trim()}". Elige otro nombre.`);
       return;
     }
     
@@ -144,14 +177,11 @@ const Menu = () => {
     }
     
     try { 
-      const userId = getCurrentUserId();
-      
       await updateProduct(product.id, { 
         nombre: nuevoNombre.trim(),
         precio: Math.round(precio),
         grupo: nuevoGrupo.trim(),
-        disponibilidad: product.disponibilidad,
-        id_usuario: userId
+        disponibilidad: product.disponibilidad
       }); 
       alert('Producto actualizado exitosamente'); 
     } catch (e) { 
@@ -177,7 +207,75 @@ const Menu = () => {
   const handleAddCategory = () => {
     const nueva = prompt('Nombre de nueva categoría:');
     if (nueva) {
-      alert(`Categoría "${nueva}" creada. Asignala al crear/editar productos.`);
+      const clean = nueva.trim();
+      if (!clean) return;
+      
+      // Verificar si la categoría ya existe (en categorías extra o en productos existentes)
+      const existingGroups = getUniqueGroups ? getUniqueGroups() : [];
+      const allExistingCategories = [...existingGroups, ...extraCategories];
+      
+      if (allExistingCategories.includes(clean)) {
+        alert(`La categoría "${clean}" ya existe. Elige otro nombre.`);
+        return;
+      }
+      
+      if (!extraCategories.includes(clean)) {
+        const updated = [...extraCategories, clean];
+        setExtraCategories(updated);
+        localStorage.setItem('extraCategories', JSON.stringify(updated));
+      }
+      alert(`Categoría "${clean}" creada. Asignala al crear/editar productos.`);
+    }
+  };
+
+  // Función para eliminar categoría
+  const handleDeleteCategory = async () => {
+    const uniqueGroups = Array.from(new Set([...(getUniqueGroups ? getUniqueGroups() : []), ...extraCategories])).filter(Boolean);
+    
+    if (uniqueGroups.length === 0) {
+      alert('No hay categorías para eliminar');
+      return;
+    }
+
+    const categoria = prompt(`Selecciona la categoría a eliminar:\n\n${uniqueGroups.map((g, i) => `${i + 1}. ${g}`).join('\n')}\n\nIngresa el número o nombre de la categoría:`);
+    
+    if (!categoria) return;
+
+    let categoriaSeleccionada = null;
+    
+    // Verificar si es un número
+    const numero = parseInt(categoria);
+    if (!isNaN(numero) && numero >= 1 && numero <= uniqueGroups.length) {
+      categoriaSeleccionada = uniqueGroups[numero - 1];
+    } else {
+      // Verificar si es el nombre exacto
+      if (uniqueGroups.includes(categoria.trim())) {
+        categoriaSeleccionada = categoria.trim();
+      } else {
+        alert('Categoría no válida');
+        return;
+      }
+    }
+
+    // Confirmar eliminación
+    const confirmacion = confirm(`¿Estás seguro de que quieres eliminar la categoría "${categoriaSeleccionada}"?\n\nEsto eliminará TODOS los productos de esta categoría.`);
+    
+    if (!confirmacion) return;
+
+    try {
+      await deleteCategory(categoriaSeleccionada);
+      
+      // Remover de categorías extra si existe
+      if (extraCategories.includes(categoriaSeleccionada)) {
+        const updated = extraCategories.filter(c => c !== categoriaSeleccionada);
+        setExtraCategories(updated);
+        localStorage.setItem('extraCategories', JSON.stringify(updated));
+      }
+      
+      alert(`Categoría "${categoriaSeleccionada}" y todos sus productos han sido eliminados`);
+    } catch (e) {
+      console.error('Error eliminando categoría:', e);
+      alert(`Error al eliminar la categoría: ${e.message || 'Error desconocido'}`);
     }
   };
 
@@ -202,8 +300,9 @@ const Menu = () => {
     .filter(p => idFilter ? String(p.id) === String(idFilter) : true)
     .slice(0, visibleCount);
 
-  // Obtener categorías únicas
-  const uniqueGroups = getUniqueGroups ? getUniqueGroups() : [];
+  // Obtener categorías únicas (productos + extras persistidas)
+  const uniqueGroupsBase = getUniqueGroups ? getUniqueGroups() : [];
+  const uniqueGroups = Array.from(new Set([...(uniqueGroupsBase||[]), ...(extraCategories||[])])).filter(Boolean);
 
   return (
     <div className="menu-container">
@@ -255,6 +354,9 @@ const Menu = () => {
             </button>
             <button title="Agregar categoría" onClick={handleAddCategory} disabled={loading}>
             ➕📂 Categoría
+            </button>
+            <button title="Eliminar categoría" onClick={handleDeleteCategory} disabled={loading}>
+            🗑️📂 Eliminar Categoría
             </button>
           </div>
 

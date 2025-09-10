@@ -51,6 +51,19 @@ export const productService = {
     }
   },
 
+  // Eliminar categoría y todos sus productos
+  deleteCategory: async (category) => {
+    try {
+      console.log('Eliminando categoría:', category);
+      const response = await apiClient.delete(`/productos/categoria/${encodeURIComponent(category)}`);
+      console.log('Categoría eliminada exitosamente:', response);
+      return response;
+    } catch (error) {
+      console.error('Error eliminando categoría:', error);
+      throw error;
+    }
+  },
+
   // Obtener productos por grupo
   getProductsByGroup: async (group) => {
     try {

@@ -24,9 +24,12 @@ public interface ProductoRepositorio extends JpaRepository<Producto, Long> {
 
     // 4. Buscar productos por nombres (contains, ignore case)
     List<Producto> findByNombreContainingIgnoreCase(String nombre);
+    
+    // 4.1. Buscar productos por nombre exacto (ignore case)
+    List<Producto> findByNombreIgnoreCase(String nombre);
 
     // 5. Filtrar productos sin/bajo stock
-    List<Producto> findByCantidadLessThanEqual(Integer cantidad);
+    // Eliminado: campo 'cantidad' ya no existe
 
     // 6. Filtrar por precio mínimo/máximo
     List<Producto> findByPrecioGreaterThanEqual(Integer precioMinimo);
@@ -41,8 +44,7 @@ public interface ProductoRepositorio extends JpaRepository<Producto, Long> {
     List<Producto> findByGrupoAndDisponibilidad(String grupo, Boolean disponibilidad);
 
     // 10. Consulta personalizada para productos con stock bajo (SIN parámetros)
-    @Query("SELECT p FROM Producto p WHERE p.cantidad <= 5 AND p.disponibilidad = true")
-    List<Producto> encontrarProductosConStockBajo();
+    // Eliminado: campo 'cantidad' ya no existe
 
     // 11. Consulta personalizada para productos más caros
     @Query("SELECT p FROM Producto p WHERE p.precio >= :precioMinimo ORDER BY p.precio DESC")

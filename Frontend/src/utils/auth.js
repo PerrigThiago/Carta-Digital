@@ -186,7 +186,8 @@ export const apiClient = {
       try {
         const errorText = await response.text();
         errorMessage = errorText || errorMessage;
-        console.error('POST Error:', errorText);
+        console.error('POST Error Response Body:', errorText);
+        console.error('POST Error Headers:', Object.fromEntries(response.headers.entries()));
       } catch (e) {
         console.error('Error leyendo respuesta de error:', e);
       }
@@ -277,22 +278,33 @@ export const apiClient = {
       try {
         const errorText = await response.text();
         errorMessage = errorText || errorMessage;
-        console.error('DELETE Error:', errorText);
+        console.error('DELETE Error Response Body:', errorText);
+        console.error('DELETE Error Headers:', Object.fromEntries(response.headers.entries()));
       } catch (e) {
         console.error('Error leyendo respuesta de error:', e);
       }
       throw new Error(errorMessage);
     }
 
-    // Intentar parsear como JSON, si falla devolver texto
+    // Para DELETE exitoso, intentar parsear como JSON, si falla devolver texto
     try {
-      const jsonResponse = await response.json();
-      console.log('DELETE Success JSON:', jsonResponse);
-      return jsonResponse;
+      const responseText = await response.text();
+      if (responseText.trim() === '') {
+        console.log('DELETE Success: Empty response');
+        return { success: true, message: 'Eliminado correctamente' };
+      }
+      
+      try {
+        const jsonResponse = JSON.parse(responseText);
+        console.log('DELETE Success JSON:', jsonResponse);
+        return jsonResponse;
+      } catch (parseError) {
+        console.log('DELETE Success Text:', responseText);
+        return { success: true, message: responseText };
+      }
     } catch (e) {
-      const textResponse = await response.text();
-      console.log('DELETE Success Text:', textResponse);
-      return textResponse;
+      console.error('Error procesando respuesta DELETE:', e);
+      return { success: true, message: 'Eliminado correctamente' };
     }
   }
 };

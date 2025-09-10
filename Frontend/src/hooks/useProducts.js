@@ -87,9 +87,8 @@ export const useProducts = () => {
       const result = await productService.deleteProduct(id);
       console.log('Producto eliminado:', result);
       
-      // Actualizar la lista local
-      setProducts(prev => prev.filter(p => p.id !== id));
-      setFilteredProducts(prev => prev.filter(p => p.id !== id));
+      // Recargar productos desde el servidor para asegurar consistencia
+      await loadProducts();
       
       return result;
     } catch (err) {
@@ -99,7 +98,29 @@ export const useProducts = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [loadProducts]);
+
+  // Eliminar categoría y todos sus productos
+  const deleteCategory = useCallback(async (category) => {
+    setLoading(true);
+    setError(null);
+    try {
+      console.log('Eliminando categoría:', category);
+      const result = await productService.deleteCategory(category);
+      console.log('Categoría eliminada:', result);
+      
+      // Recargar productos desde el servidor para asegurar consistencia
+      await loadProducts();
+      
+      return result;
+    } catch (err) {
+      console.error('Error eliminando categoría:', err);
+      setError(err.message || 'Error eliminando categoría');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [loadProducts]);
 
   // Aplicar filtros
   const applyFilters = useCallback(() => {
@@ -167,6 +188,7 @@ export const useProducts = () => {
     createProduct,
     updateProduct,
     deleteProduct,
+    deleteCategory,
     updateFilters,
     clearFilters,
     getUniqueGroups

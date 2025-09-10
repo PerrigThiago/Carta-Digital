@@ -22,21 +22,35 @@ public class ProductoServicio {
     // 1. CREAR PRODUCTO
     public Producto crearProducto(Producto producto) {
         try {
+            System.out.println("=== CREAR PRODUCTO ===");
+            System.out.println("Producto recibido: " + producto);
+            System.out.println("Usuario recibido: " + (producto != null ? producto.getUsuario() : "null"));
+            
             // Validaciones que pensaste:
             if (producto == null) {
+                System.err.println("ERROR: Producto es null");
                 return null;
             }
             
             if (producto.getNombre() == null || producto.getNombre().trim().isEmpty()) {
+                System.err.println("ERROR: Nombre es null o vacío");
                 return null;
             }
             
             if (producto.getPrecio() == null || producto.getPrecio() <= 0) {
+                System.err.println("ERROR: Precio es null o <= 0: " + producto.getPrecio());
                 return null;
             }
             
-            
             if (producto.getGrupo() == null || producto.getGrupo().trim().isEmpty()) {
+                System.err.println("ERROR: Grupo es null o vacío");
+                return null;
+            }
+            
+            // Validar que no exista otro producto con el mismo nombre
+            List<Producto> productosConMismoNombre = productoRepositorio.findByNombreIgnoreCase(producto.getNombre().trim());
+            if (!productosConMismoNombre.isEmpty()) {
+                System.err.println("ERROR: Ya existe un producto con el nombre: " + producto.getNombre());
                 return null;
             }
             
@@ -62,10 +76,13 @@ public class ProductoServicio {
                 producto.setDisponibilidad(true);
             }
             
-            return productoRepositorio.save(producto);
+            Producto productoGuardado = productoRepositorio.save(producto);
+            System.out.println("Producto guardado exitosamente: " + productoGuardado.getId());
+            return productoGuardado;
             
         } catch (Exception excepcion) {
             System.err.println("Error al crear el producto: " + excepcion.getMessage());
+            excepcion.printStackTrace();
             return null;
         }
     }
@@ -92,6 +109,16 @@ public class ProductoServicio {
             
             // Actualizar solo los campos permitidos (como pensaste):
             if (producto.getNombre() != null && !producto.getNombre().trim().isEmpty()) {
+                // Validar que no exista otro producto con el mismo nombre (excluyendo el actual)
+                List<Producto> productosConMismoNombre = productoRepositorio.findByNombreIgnoreCase(producto.getNombre().trim());
+                boolean nombreDuplicado = productosConMismoNombre.stream()
+                    .anyMatch(p -> !p.getId().equals(id));
+                
+                if (nombreDuplicado) {
+                    System.err.println("ERROR: Ya existe otro producto con el nombre: " + producto.getNombre());
+                    return null;
+                }
+                
                 productoActual.setNombre(producto.getNombre());
             }
             
@@ -195,6 +222,42 @@ public class ProductoServicio {
             }
         } catch (Exception excepcion) {
             System.err.println("Error al eliminar producto: " + excepcion.getMessage());
+            return false;
+        }
+    }
+    
+    // Eliminar todos los productos de una categoría
+    public boolean eliminarProductosPorCategoria(String categoria) {
+        try {
+            if (categoria == null || categoria.trim().isEmpty()) {
+                System.err.println("ERROR: Categoría es null o vacía");
+                return false;
+            }
+            
+            System.out.println("=== ELIMINAR CATEGORÍA ===");
+            System.out.println("Categoría a eliminar: " + categoria);
+            
+            // Buscar productos de la categoría
+            List<Producto> productosEnCategoria = productoRepositorio.findByGrupo(categoria);
+            System.out.println("Productos encontrados en categoría: " + productosEnCategoria.size());
+            
+            if (productosEnCategoria.isEmpty()) {
+                System.out.println("No hay productos en esta categoría");
+                return true; // No hay nada que eliminar, consideramos éxito
+            }
+            
+            // Eliminar todos los productos de la categoría
+            for (Producto producto : productosEnCategoria) {
+                System.out.println("Eliminando producto: " + producto.getId() + " - " + producto.getNombre());
+                productoRepositorio.deleteById(producto.getId());
+            }
+            
+            System.out.println("Categoría eliminada exitosamente. Productos eliminados: " + productosEnCategoria.size());
+            return true;
+            
+        } catch (Exception excepcion) {
+            System.err.println("Error al eliminar categoría: " + excepcion.getMessage());
+            excepcion.printStackTrace();
             return false;
         }
     }

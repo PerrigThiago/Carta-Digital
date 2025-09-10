@@ -21,6 +21,11 @@ public class Producto {
     @Column(name = "precio", nullable = false)
     private Integer precio;
     
+    // Campo legado para compatibilidad con bases existentes.
+    // No se usa a nivel de negocio, pero evita errores si la columna existe con NOT NULL.
+    @Column(name = "cantidad")
+    private Integer cantidad = 0;
+    
     @Column(name = "grupo", nullable = false, length = 50)
     private String grupo;
     

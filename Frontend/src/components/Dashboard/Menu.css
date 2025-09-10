@@ -706,6 +706,63 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
+/* Dark mode adjustments */
+:root.dark-theme .menu-table-section {
+  background: linear-gradient(135deg, #2b2f77 0%, #3a2754 100%);
+}
+
+:root.dark-theme .table-toolbar,
+:root.dark-theme .table-info {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+:root.dark-theme .filters input,
+:root.dark-theme .filters select {
+  background: rgba(255,255,255,0.12);
+  color: #eaeaea;
+  border-color: transparent;
+}
+
+:root.dark-theme .filters input::placeholder {
+  color: #bbb;
+}
+
+:root.dark-theme .filters select option {
+  background: #2a2a2a;
+  color: #eaeaea;
+}
+
+:root.dark-theme .filters select:focus {
+  background: rgba(255,255,255,0.15);
+  border-color: #8b5cf6;
+}
+
+:root.dark-theme .menu-table {
+  background: #1f2333;
+  color: #eaeaea;
+}
+
+:root.dark-theme .menu-table td {
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+:root.dark-theme .stat-card {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+:root.dark-theme .toolbar-left button {
+  box-shadow: 0 4px 15px rgba(30, 30, 30, 0.4);
+}
+
+:root.dark-theme .menu-table thead {
+  background: linear-gradient(135deg, #3949ab, #512da8);
+}
+
+:root.dark-theme .menu-table tbody tr:hover {
+  background-color: rgba(255,255,255,0.04);
+}
+
 .table-header {
   display: flex;
   justify-content: space-between;
