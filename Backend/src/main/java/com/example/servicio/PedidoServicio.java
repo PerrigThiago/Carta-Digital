@@ -2,8 +2,12 @@ package com.example.servicio;
 
 import com.example.entidad.Pedido;
 import com.example.entidad.PedidoProducto;
+import com.example.entidad.Cliente;
+import com.example.entidad.Producto;
 import com.example.repositorio.PedidoRepositorio;
 import com.example.repositorio.PedidoProductoRepositorio;
+import com.example.repositorio.ClienteRepositorio;
+import com.example.repositorio.ProductoRepositorio;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +25,12 @@ public class PedidoServicio {
     
     @Autowired
     private PedidoProductoRepositorio pedidoProductoRepositorio;
+    
+    @Autowired
+    private ClienteRepositorio clienteRepositorio;
+    
+    @Autowired
+    private ProductoRepositorio productoRepositorio;
 
     public List<Pedido> obtenerTodosLosPedidos() {
         try {
@@ -193,6 +203,57 @@ public class PedidoServicio {
         } catch (Exception e) {
             System.err.println("Error al obtener historial reciente: " + e.getMessage());
             return List.of();
+        }
+    }
+
+    public Long crearPedidoDesdeCarta(String nombreCliente, String telefono, String direccion, String notas, List<Map<String, Object>> items) {
+        try {
+            // Crear cliente temporal para WhatsApp
+            Cliente cliente = new Cliente();
+            cliente.setNombre(nombreCliente);
+            cliente.setTelefono("whatsapp");
+            cliente.setDireccion(direccion);
+            cliente = clienteRepositorio.save(cliente);
+
+            // Crear pedido
+            Pedido pedido = new Pedido();
+            pedido.setCliente(cliente);
+            pedido.setFecha(LocalDate.now());
+            pedido.setEstado("PENDIENTE");
+            pedido.setNotas(notas);
+            pedido.setTotal(0);
+            pedido = pedidoRepositorio.save(pedido);
+
+            // Agregar productos al pedido
+            int totalPedido = 0;
+            for (Map<String, Object> item : items) {
+                Long productoId = Long.valueOf(item.get("id").toString());
+                Integer cantidad = Integer.valueOf(item.get("quantity").toString());
+                
+                Optional<Producto> productoOpt = productoRepositorio.findById(productoId);
+                if (productoOpt.isPresent()) {
+                    Producto producto = productoOpt.get();
+                    
+                    PedidoProducto pedidoProducto = new PedidoProducto();
+                    pedidoProducto.setPedido(pedido);
+                    pedidoProducto.setProducto(producto);
+                    pedidoProducto.setCantidad(cantidad);
+                    pedidoProducto.setPrecio(producto.getPrecio());
+                    
+                    pedidoProductoRepositorio.save(pedidoProducto);
+                    totalPedido += producto.getPrecio() * cantidad;
+                }
+            }
+
+            // Actualizar total del pedido
+            pedido.setTotal(totalPedido);
+            pedidoRepositorio.save(pedido);
+
+            return pedido.getId();
+        } catch (Exception e) {
+            System.err.println("Error al crear pedido desde carta: " + e.getMessage());
+            e.printStackTrace();
+            return null;
         }
     }
 }

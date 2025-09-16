@@ -1,8 +1,10 @@
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
+import CartaDigital from './pages/CartaDigital';
 import { useAuthContext } from './context/AuthContext';
 import './App.css';
 
@@ -23,27 +25,28 @@ function AppContent() {
     );
   }
 
-  // Usuario autenticado - mostrar Dashboard
-  if (isAuthenticated && user) {
-    console.log('✅ USUARIO AUTENTICADO - Mostrando Dashboard');
-    console.log('Usuario:', user);
-    return <Dashboard />;
-  }
-  
-  // Usuario no autenticado - mostrar Login
-  console.log('❌ NO AUTENTICADO - Mostrando Login');
-  console.log('isAuthenticated:', isAuthenticated);
-  console.log('user:', user);
-  return <Login />;
+  return (
+    <Routes>
+      {/* Ruta pública para la carta digital */}
+      <Route path="/carta" element={<CartaDigital />} />
+      
+      {/* Rutas protegidas para el admin */}
+      <Route path="/*" element={
+        isAuthenticated && user ? <Dashboard /> : <Login />
+      } />
+    </Routes>
+  );
 }
 
 function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <div className="App">
-          <AppContent />
-        </div>
+        <Router>
+          <div className="App">
+            <AppContent />
+          </div>
+        </Router>
       </AuthProvider>
     </ThemeProvider>
   );

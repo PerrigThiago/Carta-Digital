@@ -1,91 +1,161 @@
-import { apiClient } from '../utils/auth';
+import { apiConfig } from '../config/apiConfig';
+
+const API_BASE_URL = apiConfig.baseURL;
 
 export const cartService = {
-  // Obtener carrito del usuario
-  getUserCart: async () => {
+  // Crear carrito
+  async createCart(clientId) {
     try {
-      const carts = await apiClient.get('/carritos');
-      // Por ahora retornamos el primer carrito, en producción debería filtrar por usuario
-      return carts.length > 0 ? carts[0] : null;
+      const response = await fetch(`${API_BASE_URL}/api/carritos`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ clienteId })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Error al crear carrito');
+      }
+      return await response.json();
     } catch (error) {
-      console.error('Error obteniendo carrito:', error);
+      console.error('Error en createCart:', error);
       throw error;
     }
   },
 
-  // Crear nuevo carrito
-  createCart: async (cartData) => {
+  // Obtener carrito por ID
+  async getCart(cartId) {
     try {
-      return await apiClient.post('/carritos', cartData);
+      const response = await fetch(`${API_BASE_URL}/api/carritos/${cartId}`);
+      if (!response.ok) {
+        throw new Error('Error al obtener carrito');
+      }
+      return await response.json();
     } catch (error) {
-      console.error('Error creando carrito:', error);
+      console.error('Error en getCart:', error);
+      throw error;
+    }
+  },
+
+  // Obtener items del carrito
+  async getCartItems(cartId) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/carritos/${cartId}/items`);
+      if (!response.ok) {
+        throw new Error('Error al obtener items del carrito');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Error en getCartItems:', error);
       throw error;
     }
   },
 
   // Agregar producto al carrito
-  addProductToCart: async (cartId, productId, quantity = 1) => {
+  async addItemToCart(cartId, productId, quantity) {
     try {
-      const cartProductData = {
-        carrito: { id: cartId },
-        producto: { id: productId },
-        cantidad: quantity
-      };
-      return await apiClient.post('/carrito-productos', cartProductData);
-    } catch (error) {
-      console.error('Error agregando producto al carrito:', error);
-      throw error;
-    }
-  },
-
-  // Actualizar cantidad de producto en el carrito
-  updateCartProductQuantity: async (cartProductId, quantity) => {
-    try {
-      return await apiClient.put(`/carrito-productos/${cartProductId}`, { cantidad: quantity });
-    } catch (error) {
-      console.error('Error actualizando cantidad:', error);
-      throw error;
-    }
-  },
-
-  // Eliminar producto del carrito
-  removeProductFromCart: async (cartProductId) => {
-    try {
-      return await apiClient.delete(`/carrito-productos/${cartProductId}`);
-    } catch (error) {
-      console.error('Error eliminando producto del carrito:', error);
-      throw error;
-    }
-  },
-
-  // Limpiar carrito
-  clearCart: async (cartId) => {
-    try {
-      const cart = await this.getUserCart();
-      if (cart && cart.carritoProductos) {
-        for (const cartProduct of cart.carritoProductos) {
-          await this.removeProductFromCart(cartProduct.id);
-        }
+      const response = await fetch(`${API_BASE_URL}/api/carritos/${cartId}/items`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ productoId, cantidad: quantity })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Error al agregar producto al carrito');
       }
-      return true;
+      return await response.json();
     } catch (error) {
-      console.error('Error limpiando carrito:', error);
+      console.error('Error en addItemToCart:', error);
+      throw error;
+    }
+  },
+
+  // Actualizar cantidad de item
+  async updateItemQuantity(cartId, productId, quantity) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/carritos/${cartId}/items/${productId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ cantidad: quantity })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Error al actualizar cantidad');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Error en updateItemQuantity:', error);
+      throw error;
+    }
+  },
+
+  // Eliminar item del carrito
+  async removeItemFromCart(cartId, productId) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/carritos/${cartId}/items/${productId}`, {
+        method: 'DELETE'
+      });
+      
+      if (!response.ok) {
+        throw new Error('Error al eliminar item del carrito');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Error en removeItemFromCart:', error);
+      throw error;
+    }
+  },
+
+  // Vaciar carrito
+  async clearCart(cartId) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/carritos/${cartId}/vaciar`, {
+        method: 'DELETE'
+      });
+      
+      if (!response.ok) {
+        throw new Error('Error al vaciar carrito');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Error en clearCart:', error);
       throw error;
     }
   },
 
   // Obtener total del carrito
-  getCartTotal: async () => {
+  async getCartTotal(cartId) {
     try {
-      const cart = await this.getUserCart();
-      if (!cart || !cart.carritoProductos) return 0;
-      
-      return cart.carritoProductos.reduce((total, cartProduct) => {
-        return total + (cartProduct.producto.precio * cartProduct.cantidad);
-      }, 0);
+      const response = await fetch(`${API_BASE_URL}/api/carritos/${cartId}/total`);
+      if (!response.ok) {
+        throw new Error('Error al obtener total del carrito');
+      }
+      return await response.json();
     } catch (error) {
-      console.error('Error calculando total del carrito:', error);
-      return 0;
+      console.error('Error en getCartTotal:', error);
+      throw error;
+    }
+  },
+
+  // Confirmar carrito (crear pedido)
+  async confirmCart(cartId) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/carritos/${cartId}/confirmar`, {
+        method: 'POST'
+      });
+      
+      if (!response.ok) {
+        throw new Error('Error al confirmar carrito');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Error en confirmCart:', error);
+      throw error;
     }
   }
 };

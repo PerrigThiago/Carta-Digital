@@ -1,78 +1,102 @@
-import { apiClient } from '../utils/auth';
+import { apiConfig } from '../config/apiConfig';
+
+const API_BASE_URL = apiConfig.baseURL;
 
 export const clientService = {
-  // Obtener todos los clientes
-  getAllClients: async () => {
+  // Crear cliente
+  async createClient(clientData) {
     try {
-      return await apiClient.get('/clientes');
+      const response = await fetch(`${API_BASE_URL}/api/clientes`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(clientData)
+      });
+      
+      if (!response.ok) {
+        throw new Error('Error al crear cliente');
+      }
+      return await response.json();
     } catch (error) {
-      console.error('Error obteniendo clientes:', error);
+      console.error('Error en createClient:', error);
       throw error;
     }
   },
 
   // Obtener cliente por ID
-  getClientById: async (id) => {
+  async getClientById(id) {
     try {
-      return await apiClient.get(`/clientes/${id}`);
+      const response = await fetch(`${API_BASE_URL}/api/clientes/${id}`);
+      if (!response.ok) {
+        throw new Error('Error al obtener cliente');
+      }
+      return await response.json();
     } catch (error) {
-      console.error('Error obteniendo cliente:', error);
+      console.error('Error en getClientById:', error);
       throw error;
     }
   },
 
-  // Crear nuevo cliente
-  createClient: async (clientData) => {
+  // Buscar cliente por teléfono
+  async findClientByPhone(phone) {
     try {
-      return await apiClient.post('/clientes', clientData);
+      const response = await fetch(`${API_BASE_URL}/api/clientes/buscar?telefono=${encodeURIComponent(phone)}`);
+      if (!response.ok) {
+        throw new Error('Error al buscar cliente');
+      }
+      return await response.json();
     } catch (error) {
-      console.error('Error creando cliente:', error);
+      console.error('Error en findClientByPhone:', error);
       throw error;
     }
   },
 
-  // Actualizar cliente existente
-  updateClient: async (id, clientData) => {
+  // Buscar cliente por nombre
+  async findClientByName(name) {
     try {
-      return await apiClient.put(`/clientes/${id}`, clientData);
+      const response = await fetch(`${API_BASE_URL}/api/clientes/nombre?nombre=${encodeURIComponent(name)}`);
+      if (!response.ok) {
+        throw new Error('Error al buscar cliente por nombre');
+      }
+      return await response.json();
     } catch (error) {
-      console.error('Error actualizando cliente:', error);
+      console.error('Error en findClientByName:', error);
       throw error;
     }
   },
 
-  // Eliminar cliente
-  deleteClient: async (id) => {
+  // Actualizar cliente
+  async updateClient(id, clientData) {
     try {
-      return await apiClient.delete(`/clientes/${id}`);
+      const response = await fetch(`${API_BASE_URL}/api/clientes/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(clientData)
+      });
+      
+      if (!response.ok) {
+        throw new Error('Error al actualizar cliente');
+      }
+      return await response.json();
     } catch (error) {
-      console.error('Error eliminando cliente:', error);
+      console.error('Error en updateClient:', error);
       throw error;
     }
   },
 
-  // Buscar clientes por nombre
-  searchClientsByName: async (name) => {
+  // Obtener todos los clientes
+  async getAllClients() {
     try {
-      const clients = await apiClient.get('/clientes');
-      return clients.filter(client => 
-        client.nombre.toLowerCase().includes(name.toLowerCase())
-      );
+      const response = await fetch(`${API_BASE_URL}/api/clientes`);
+      if (!response.ok) {
+        throw new Error('Error al obtener clientes');
+      }
+      return await response.json();
     } catch (error) {
-      console.error('Error buscando clientes:', error);
-      throw error;
-    }
-  },
-
-  // Buscar clientes por teléfono
-  searchClientsByPhone: async (phone) => {
-    try {
-      const clients = await apiClient.get('/clientes');
-      return clients.filter(client => 
-        client.telefono.includes(phone)
-      );
-    } catch (error) {
-      console.error('Error buscando clientes por teléfono:', error);
+      console.error('Error en getAllClients:', error);
       throw error;
     }
   }

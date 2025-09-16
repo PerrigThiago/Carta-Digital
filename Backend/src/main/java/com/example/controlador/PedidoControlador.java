@@ -5,6 +5,7 @@ import com.example.entidad.PedidoProducto;
 import com.example.servicio.PedidoProductoServicio;
 import com.example.servicio.PedidoServicio;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -82,6 +83,39 @@ public class PedidoControlador {
     @GetMapping("/historial-reciente")
     public ResponseEntity<List<Pedido>> obtenerHistorialReciente(@RequestParam(defaultValue = "10") int limite) {
         return ResponseEntity.ok(pedidoServicio.obtenerHistorialReciente(limite));
+    }
+
+    // ENDPOINT PARA CREAR PEDIDO DESDE CARTA DIGITAL
+    @PostMapping("/crear-desde-carta")
+    public ResponseEntity<?> crearPedidoDesdeCarta(@RequestBody Map<String, Object> pedidoData) {
+        try {
+            // Extraer datos del pedido
+            String nombreCliente = (String) pedidoData.get("nombre");
+            String telefono = (String) pedidoData.get("telefono");
+            String direccion = (String) pedidoData.get("direccion");
+            String notas = (String) pedidoData.get("notas");
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> items = (List<Map<String, Object>>) pedidoData.get("items");
+            
+            if (nombreCliente == null || telefono == null || items == null || items.isEmpty()) {
+                return ResponseEntity.badRequest().body("Datos del pedido incompletos");
+            }
+            
+            // Crear el pedido
+            Long pedidoId = pedidoServicio.crearPedidoDesdeCarta(nombreCliente, telefono, direccion, notas, items);
+            
+            if (pedidoId != null) {
+                return ResponseEntity.ok(Map.of(
+                    "pedidoId", pedidoId,
+                    "mensaje", "Pedido creado exitosamente"
+                ));
+            } else {
+                return ResponseEntity.badRequest().body("No se pudo crear el pedido");
+            }
+        } catch (Exception e) {
+            System.err.println("Error al crear pedido desde carta: " + e.getMessage());
+            return ResponseEntity.badRequest().body("Error interno del servidor");
+        }
     }
 }
 

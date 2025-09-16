@@ -1,171 +1,87 @@
-import { useState, useEffect, useCallback } from 'react';
-import { cartService } from '../services/cartService';
+import { useState, useEffect } from 'react';
 
 export const useCart = () => {
-  const [cart, setCart] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [cartItems, setCartItems] = useState([]);
-  const [total, setTotal] = useState(0);
 
-  // Cargar carrito del usuario
-  const loadCart = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const cartData = await cartService.getUserCart();
-      setCart(cartData);
-      setCartItems(cartData?.carritoProductos || []);
-      setTotal(cartData?.carritoProductos?.reduce((sum, item) => 
-        sum + (item.producto.precio * item.cantidad), 0) || 0);
-    } catch (err) {
-      setError(err.message);
-      console.error('Error cargando carrito:', err);
-    } finally {
-      setLoading(false);
+  // Cargar carrito del localStorage al inicializar
+  useEffect(() => {
+    const savedCart = localStorage.getItem('cart');
+    if (savedCart) {
+      try {
+        setCartItems(JSON.parse(savedCart));
+      } catch (error) {
+        console.error('Error al cargar carrito del localStorage:', error);
+      }
     }
   }, []);
 
-  // Crear nuevo carrito
-  const createCart = useCallback(async (cartData) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const newCart = await cartService.createCart(cartData);
-      setCart(newCart);
-      setCartItems(newCart?.carritoProductos || []);
-      return newCart;
-    } catch (err) {
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  // Guardar carrito en localStorage cuando cambie
+  useEffect(() => {
+    localStorage.setItem('cart', JSON.stringify(cartItems));
+  }, [cartItems]);
 
-  // Agregar producto al carrito
-  const addToCart = useCallback(async (productId, quantity = 1) => {
-    if (!cart) {
-      // Si no hay carrito, crear uno nuevo
-      const newCart = await createCart({
-        fechaCreacion: new Date().toISOString(),
-        estado: 'ACTIVO'
-      });
-      setCart(newCart);
-    }
+  const addToCart = (product) => {
+    setCartItems(prevItems => {
+      const existingItem = prevItems.find(item => item.id === product.id);
+      
+      if (existingItem) {
+        return prevItems.map(item =>
+          item.id === product.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        );
+      } else {
+        return [...prevItems, { ...product, quantity: 1 }];
+      }
+    });
+  };
 
-    setLoading(true);
-    setError(null);
-    try {
-      const cartProduct = await cartService.addProductToCart(cart.id, productId, quantity);
-      setCartItems(prev => [...prev, cartProduct]);
-      setTotal(prev => prev + (cartProduct.producto.precio * quantity));
-    } catch (err) {
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [cart, createCart]);
+  const removeFromCart = (productId) => {
+    setCartItems(prevItems =>
+      prevItems.filter(item => item.id !== productId)
+    );
+  };
 
-  // Actualizar cantidad de producto
-  const updateQuantity = useCallback(async (cartProductId, newQuantity) => {
+  const updateQuantity = (productId, newQuantity) => {
     if (newQuantity <= 0) {
-      await removeFromCart(cartProductId);
+      removeFromCart(productId);
       return;
     }
 
-    setLoading(true);
-    setError(null);
-    try {
-      await cartService.updateCartProductQuantity(cartProductId, newQuantity);
-      
-      setCartItems(prev => prev.map(item => {
-        if (item.id === cartProductId) {
-          const oldQuantity = item.cantidad;
-          const price = item.producto.precio;
-          setTotal(prevTotal => prevTotal - (oldQuantity * price) + (newQuantity * price));
-          return { ...item, cantidad: newQuantity };
-        }
-        return item;
-      }));
-    } catch (err) {
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    setCartItems(prevItems =>
+      prevItems.map(item =>
+        item.id === productId
+          ? { ...item, quantity: newQuantity }
+          : item
+      )
+    );
+  };
 
-  // Remover producto del carrito
-  const removeFromCart = useCallback(async (cartProductId) => {
-    setLoading(true);
-    setError(null);
-    try {
-      await cartService.removeProductFromCart(cartProductId);
-      
-      setCartItems(prev => {
-        const itemToRemove = prev.find(item => item.id === cartProductId);
-        if (itemToRemove) {
-          setTotal(prevTotal => prevTotal - (itemToRemove.producto.precio * itemToRemove.cantidad));
-        }
-        return prev.filter(item => item.id !== cartProductId);
-      });
-    } catch (err) {
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const clearCart = () => {
+    setCartItems([]);
+  };
 
-  // Limpiar carrito
-  const clearCart = useCallback(async () => {
-    if (!cart) return;
-    
-    setLoading(true);
-    setError(null);
-    try {
-      await cartService.clearCart(cart.id);
-      setCartItems([]);
-      setTotal(0);
-    } catch (err) {
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [cart]);
+  const getTotalPrice = () => {
+    return cartItems.reduce((total, item) => total + (item.precio * item.quantity), 0);
+  };
 
-  // Obtener cantidad de un producto en el carrito
-  const getProductQuantity = useCallback((productId) => {
-    const cartItem = cartItems.find(item => item.producto.id === productId);
-    return cartItem ? cartItem.cantidad : 0;
-  }, [cartItems]);
+  const getTotalItems = () => {
+    return cartItems.reduce((total, item) => total + item.quantity, 0);
+  };
 
-  // Verificar si un producto está en el carrito
-  const isProductInCart = useCallback((productId) => {
-    return cartItems.some(item => item.producto.id === productId);
-  }, [cartItems]);
-
-  // Cargar carrito al montar el componente
-  useEffect(() => {
-    loadCart();
-  }, [loadCart]);
+  const getItemQuantity = (productId) => {
+    const item = cartItems.find(item => item.id === productId);
+    return item ? item.quantity : 0;
+  };
 
   return {
-    cart,
     cartItems,
-    total,
-    loading,
-    error,
-    loadCart,
-    createCart,
     addToCart,
-    updateQuantity,
     removeFromCart,
+    updateQuantity,
     clearCart,
-    getProductQuantity,
-    isProductInCart
+    getTotalPrice,
+    getTotalItems,
+    getItemQuantity
   };
 };
