@@ -67,6 +67,22 @@ public class PedidoControlador {
     public ResponseEntity<List<PedidoProducto>> items(@PathVariable Long pedidoId) {
         return ResponseEntity.ok(pedidoProductoServicio.listarPorPedido(pedidoId));
     }
+
+    // ENDPOINTS PARA HISTORIAL Y RANKING
+    @GetMapping("/estadisticas")
+    public ResponseEntity<?> obtenerEstadisticas() {
+        return ResponseEntity.ok(pedidoServicio.obtenerEstadisticasGenerales());
+    }
+
+    @GetMapping("/ranking-productos")
+    public ResponseEntity<?> obtenerRankingProductos() {
+        return ResponseEntity.ok(pedidoServicio.obtenerRankingProductos());
+    }
+
+    @GetMapping("/historial-reciente")
+    public ResponseEntity<List<Pedido>> obtenerHistorialReciente(@RequestParam(defaultValue = "10") int limite) {
+        return ResponseEntity.ok(pedidoServicio.obtenerHistorialReciente(limite));
+    }
 }
 
 

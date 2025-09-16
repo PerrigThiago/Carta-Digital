@@ -1,41 +1,41 @@
 // Configuración de la API
-export const API_CONFIG = {
+export const apiConfig = {
   // URL base del backend
-  BASE_URL: 'http://localhost:8080/api',
+  baseURL: 'http://localhost:8080',
   
   // Endpoints
-  ENDPOINTS: {
+  endpoints: {
     // Usuarios
-    USERS: '/usuarios',
-    LOGIN: '/usuarios/login',
+    users: '/api/usuarios',
+    login: '/api/usuarios/login',
     
     // Productos
-    PRODUCTS: '/productos',
+    products: '/api/productos',
     
     // Pedidos
-    ORDERS: '/pedidos',
+    orders: '/api/pedidos',
     
     // Carrito
-    CARTS: '/carritos',
-    CART_PRODUCTS: '/carrito-productos',
+    carts: '/api/carritos',
+    cartProducts: '/api/carrito-productos',
     
     // Clientes
-    CLIENTS: '/clientes',
+    clients: '/api/clientes',
     
     // Parámetros web
-    WEB_PARAMS: '/parametros-web'
+    webParams: '/api/parametros-web'
   },
   
   // Headers por defecto
-  DEFAULT_HEADERS: {
+  defaultHeaders: {
     'Content-Type': 'application/json'
   },
   
   // Timeout de las peticiones (en ms)
-  TIMEOUT: 10000,
+  timeout: 10000,
   
   // Configuración de reintentos
-  RETRY_CONFIG: {
+  retryConfig: {
     maxRetries: 3,
     retryDelay: 1000
   }

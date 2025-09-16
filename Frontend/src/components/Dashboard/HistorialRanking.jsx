@@ -1,33 +1,68 @@
 import React, { useState } from 'react';
+import { useHistorialRanking } from '../../hooks/useHistorialRanking';
 import './HistorialRanking.css';
 
 const HistorialRanking = () => {
   const [activeTab, setActiveTab] = useState('historial');
+  
+  // Usar el hook personalizado para manejar datos
+  const {
+    loading,
+    error,
+    estadisticas,
+    rankingProductos,
+    historialPedidos,
+    filtros,
+    filtrarPorEstado,
+    filtrarPorFecha,
+    limpiarFiltros
+  } = useHistorialRanking();
 
-  // Datos de ejemplo para el historial
-  const historialData = [
-    { id: 1, fecha: '2024-01-15', cliente: 'Juan Pérez', pedido: 'Pizza Margherita', total: '$15.99', estado: 'Completado' },
-    { id: 2, fecha: '2024-01-15', cliente: 'María García', pedido: 'Pizza Pepperoni', total: '$18.99', estado: 'En Proceso' },
-    { id: 3, fecha: '2024-01-14', cliente: 'Carlos López', pedido: 'Pizza Hawaiana', total: '$16.99', estado: 'Completado' },
-    { id: 4, fecha: '2024-01-14', cliente: 'Ana Martínez', pedido: 'Pizza Vegetariana', total: '$17.99', estado: 'Completado' },
-    { id: 5, fecha: '2024-01-13', cliente: 'Luis Rodríguez', pedido: 'Pizza BBQ', total: '$19.99', estado: 'Completado' }
-  ];
+  // Función para formatear fecha
+  const formatearFecha = (fecha) => {
+    if (!fecha) return 'N/A';
+    return new Date(fecha).toLocaleDateString('es-ES');
+  };
 
-  // Datos de ejemplo para el ranking
-  const rankingData = [
-    { posicion: 1, producto: 'Pizza Margherita', ventas: 45, rating: 4.8 },
-    { posicion: 2, producto: 'Pizza Pepperoni', ventas: 38, rating: 4.7 },
-    { posicion: 3, producto: 'Pizza Hawaiana', ventas: 32, rating: 4.6 },
-    { posicion: 4, producto: 'Pizza Vegetariana', ventas: 28, rating: 4.5 },
-    { posicion: 5, producto: 'Pizza BBQ', ventas: 25, rating: 4.4 }
-  ];
+  // Función para formatear precio
+  const formatearPrecio = (precio) => {
+    if (!precio) return '$0';
+    return `$${precio.toLocaleString()}`;
+  };
 
-  // Datos de ejemplo para estadísticas
-  const estadisticas = [
-    { label: 'Total Ventas', value: '$8,450', cambio: '+12%', positivo: true },
-    { label: 'Pedidos Totales', value: '156', cambio: '+8%', positivo: true },
-    { label: 'Tiempo Promedio', value: '25 min', cambio: '-5%', positivo: false }
-  ];
+  // Función para obtener el nombre del cliente
+  const obtenerNombreCliente = (pedido) => {
+    if (pedido.cliente && pedido.cliente.nombre) {
+      return pedido.cliente.nombre;
+    }
+    return 'Cliente Anónimo';
+  };
+
+  // Función para obtener el estado en español
+  const obtenerEstadoEnEspanol = (estado) => {
+    const estados = {
+      'PENDIENTE': 'Pendiente',
+      'CONFIRMADO': 'Confirmado',
+      'EN_PREPARACION': 'En Preparación',
+      'LISTO': 'Listo',
+      'ENTREGADO': 'Entregado',
+      'CANCELADO': 'Cancelado'
+    };
+    return estados[estado] || estado;
+  };
+
+  // Función para obtener la clase CSS del estado
+  const obtenerClaseEstado = (estado) => {
+    const clases = {
+      'PENDIENTE': 'status-pendiente',
+      'CONFIRMADO': 'status-confirmado',
+      'EN_PREPARACION': 'status-en-proceso',
+      'LISTO': 'status-listo',
+      'ENTREGADO': 'status-completado',
+      'CANCELADO': 'status-cancelado'
+    };
+    return clases[estado] || 'status-pendiente';
+  };
 
   return (
     <div className="historial-ranking-container">
@@ -59,19 +94,46 @@ const HistorialRanking = () => {
           <div className="content-header">
             <h3>Historial de Pedidos Recientes</h3>
             <div className="filters">
-              <select className="filter-select">
+              <select 
+                className="filter-select"
+                value={filtros.estado}
+                onChange={(e) => filtrarPorEstado(e.target.value)}
+              >
                 <option value="">Todos los estados</option>
-                <option value="completado">Completado</option>
-                <option value="en-proceso">En Proceso</option>
-                <option value="cancelado">Cancelado</option>
+                <option value="PENDIENTE">Pendiente</option>
+                <option value="CONFIRMADO">Confirmado</option>
+                <option value="EN_PREPARACION">En Preparación</option>
+                <option value="LISTO">Listo</option>
+                <option value="ENTREGADO">Entregado</option>
+                <option value="CANCELADO">Cancelado</option>
               </select>
               <input 
                 type="date" 
                 className="date-filter"
-                defaultValue="2024-01-15"
+                value={filtros.fecha}
+                onChange={(e) => filtrarPorFecha(e.target.value)}
               />
+              <button 
+                className="btn-secondary"
+                onClick={limpiarFiltros}
+              >
+                Limpiar Filtros
+              </button>
             </div>
           </div>
+          
+          {loading && (
+            <div className="loading-container">
+              <p>Cargando datos...</p>
+            </div>
+          )}
+          
+          {error && (
+            <div className="error-container">
+              <p>Error: {error}</p>
+              <button onClick={() => window.location.reload()}>Reintentar</button>
+            </div>
+          )}
           
           <div className="table-container">
             <table className="data-table">
@@ -80,31 +142,37 @@ const HistorialRanking = () => {
                   <th>ID</th>
                   <th>Fecha</th>
                   <th>Cliente</th>
-                  <th>Pedido</th>
                   <th>Total</th>
                   <th>Estado</th>
                   <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
-                {historialData.map((pedido) => (
-                  <tr key={pedido.id}>
-                    <td>#{pedido.id}</td>
-                    <td>{pedido.fecha}</td>
-                    <td>{pedido.cliente}</td>
-                    <td>{pedido.pedido}</td>
-                    <td>{pedido.total}</td>
-                    <td>
-                      <span className={`status-badge status-${pedido.estado.toLowerCase().replace(' ', '-')}`}>
-                        {pedido.estado}
-                      </span>
-                    </td>
-                    <td>
-                      <button className="action-btn view-btn">👁️</button>
-                      <button className="action-btn edit-btn">✏️</button>
+                {historialPedidos.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" className="no-data">
+                      No hay pedidos disponibles
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  historialPedidos.map((pedido) => (
+                    <tr key={pedido.id}>
+                      <td>#{pedido.id}</td>
+                      <td>{formatearFecha(pedido.fecha)}</td>
+                      <td>{obtenerNombreCliente(pedido)}</td>
+                      <td>{formatearPrecio(pedido.total)}</td>
+                      <td>
+                        <span className={`status-badge ${obtenerClaseEstado(pedido.estado)}`}>
+                          {obtenerEstadoEnEspanol(pedido.estado)}
+                        </span>
+                      </td>
+                      <td>
+                        <button className="action-btn view-btn" title="Ver detalles">👁️</button>
+                        <button className="action-btn edit-btn" title="Editar">✏️</button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -115,31 +183,51 @@ const HistorialRanking = () => {
       {activeTab === 'ranking' && (
         <div className="tab-content">
           <div className="content-header">
-            <h3>Top 5 Productos Más Vendidos</h3>
-            <p className="subtitle">Basado en ventas del último mes</p>
+            <h3>Top Productos Más Vendidos</h3>
+            <p className="subtitle">Basado en ventas totales</p>
           </div>
           
+          {loading && (
+            <div className="loading-container">
+              <p>Cargando ranking...</p>
+            </div>
+          )}
+          
+          {error && (
+            <div className="error-container">
+              <p>Error: {error}</p>
+              <button onClick={() => window.location.reload()}>Reintentar</button>
+            </div>
+          )}
+          
           <div className="ranking-list">
-            {rankingData.map((item) => (
-              <div key={item.posicion} className="ranking-item">
-                <div className="ranking-position">
-                  <span className="position-number">{item.posicion}</span>
-                  <span className="position-medal">
-                    {item.posicion === 1 ? '🥇' : item.posicion === 2 ? '🥈' : item.posicion === 3 ? '🥉' : '🏅'}
-                  </span>
-                </div>
-                <div className="ranking-info">
-                  <h4 className="product-name">{item.producto}</h4>
-                  <div className="product-stats">
-                    <span className="sales-count">Ventas: {item.ventas}</span>
-                    <span className="rating">Rating: {item.rating} ⭐</span>
+            {rankingProductos.length === 0 ? (
+              <div className="no-data">
+                <p>No hay datos de ranking disponibles</p>
+              </div>
+            ) : (
+              rankingProductos.map((item, index) => (
+                <div key={item.productoId} className="ranking-item">
+                  <div className="ranking-position">
+                    <span className="position-number">{index + 1}</span>
+                    <span className="position-medal">
+                      {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '🏅'}
+                    </span>
+                  </div>
+                  <div className="ranking-info">
+                    <h4 className="product-name">{item.nombre}</h4>
+                    <div className="product-stats">
+                      <span className="sales-count">Ventas: {item.ventas}</span>
+                      <span className="rating">Rating: {item.rating?.toFixed(1) || 'N/A'} ⭐</span>
+                      <span className="ingresos">Ingresos: {formatearPrecio(item.ingresos)}</span>
+                    </div>
+                  </div>
+                  <div className="ranking-actions">
+                    <button className="btn-secondary">Ver Detalles</button>
                   </div>
                 </div>
-                <div className="ranking-actions">
-                  <button className="btn-secondary">Ver Detalles</button>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       )}
@@ -155,28 +243,96 @@ const HistorialRanking = () => {
             </button>
           </div>
           
-          <div className="stats-grid">
-            {estadisticas.map((stat, index) => (
-              <div key={index} className="stat-card">
+          {loading && (
+            <div className="loading-container">
+              <p>Cargando estadísticas...</p>
+            </div>
+          )}
+          
+          {error && (
+            <div className="error-container">
+              <p>Error: {error}</p>
+              <button onClick={() => window.location.reload()}>Reintentar</button>
+            </div>
+          )}
+          
+          {estadisticas && (
+            <div className="stats-grid">
+              <div className="stat-card">
                 <div className="stat-header">
-                  <h4>{stat.label}</h4>
-                  <span className={`change-indicator ${stat.positivo ? 'positive' : 'negative'}`}>
-                    {stat.cambio}
+                  <h4>Total Ventas</h4>
+                  <span className={`change-indicator ${estadisticas.cambioVentas > 0 ? 'positive' : 'negative'}`}>
+                    {estadisticas.cambioVentas > 0 ? '+' : ''}{estadisticas.cambioVentas}%
                   </span>
                 </div>
-                <div className="stat-value">{stat.value}</div>
+                <div className="stat-value">{formatearPrecio(estadisticas.totalVentas)}</div>
                 <div className="stat-chart">
-                  <div className="chart-bar" style={{ width: `${Math.random() * 100}%` }}></div>
+                  <div className="chart-bar" style={{ width: '75%' }}></div>
                 </div>
               </div>
-            ))}
-          </div>
+              
+              <div className="stat-card">
+                <div className="stat-header">
+                  <h4>Pedidos Totales</h4>
+                  <span className={`change-indicator ${estadisticas.cambioPedidos > 0 ? 'positive' : 'negative'}`}>
+                    {estadisticas.cambioPedidos > 0 ? '+' : ''}{estadisticas.cambioPedidos}%
+                  </span>
+                </div>
+                <div className="stat-value">{estadisticas.totalPedidos}</div>
+                <div className="stat-chart">
+                  <div className="chart-bar" style={{ width: '60%' }}></div>
+                </div>
+              </div>
+              
+              <div className="stat-card">
+                <div className="stat-header">
+                  <h4>Tiempo Promedio</h4>
+                  <span className={`change-indicator ${estadisticas.cambioTiempo < 0 ? 'positive' : 'negative'}`}>
+                    {estadisticas.cambioTiempo > 0 ? '+' : ''}{estadisticas.cambioTiempo}%
+                  </span>
+                </div>
+                <div className="stat-value">{estadisticas.tiempoPromedio} min</div>
+                <div className="stat-chart">
+                  <div className="chart-bar" style={{ width: '40%' }}></div>
+                </div>
+              </div>
+              
+              <div className="stat-card">
+                <div className="stat-header">
+                  <h4>Pedidos Completados</h4>
+                  <span className="change-indicator positive">
+                    {estadisticas.pedidosCompletados > 0 ? 
+                      `${Math.round((estadisticas.pedidosCompletados / estadisticas.totalPedidos) * 100)}%` : 
+                      '0%'
+                    }
+                  </span>
+                </div>
+                <div className="stat-value">{estadisticas.pedidosCompletados}</div>
+                <div className="stat-chart">
+                  <div className="chart-bar" style={{ 
+                    width: `${estadisticas.totalPedidos > 0 ? 
+                      (estadisticas.pedidosCompletados / estadisticas.totalPedidos) * 100 : 0
+                    }%` 
+                  }}></div>
+                </div>
+              </div>
+            </div>
+          )}
           
           <div className="chart-section">
-            <h4>Gráfico de Ventas</h4>
+            <h4>Resumen de Actividad</h4>
             <div className="chart-placeholder">
               <p>📈 Gráfico de ventas mensuales</p>
-              <p>Aquí se mostraría un gráfico interactivo</p>
+              <p>Aquí se mostraría un gráfico interactivo con datos reales</p>
+              {estadisticas && (
+                <div className="summary-stats">
+                  <p>Total de ingresos: {formatearPrecio(estadisticas.totalVentas)}</p>
+                  <p>Promedio por pedido: {estadisticas.totalPedidos > 0 ? 
+                    formatearPrecio(Math.round(estadisticas.totalVentas / estadisticas.totalPedidos)) : 
+                    '$0'
+                  }</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -186,3 +342,4 @@ const HistorialRanking = () => {
 };
 
 export default HistorialRanking;
+
