@@ -3,20 +3,20 @@
 -- Insertar usuario administrador
 INSERT INTO usuario (usuario, contrasenia) VALUES ('admin', 'admin123');
 
--- Insertar productos
-INSERT INTO producto (nombre, precio, cantidad, grupo, sub_grupo, imagen, descripcion, disponibilidad, usuario_id) VALUES
-('Pizza Muzzarella', 3500, 20, 'Pizzas', 'Clásicas', 'pizza_muzzarella.jpg', 'Pizza tradicional con muzzarella y salsa de tomate', true, 1),
-('Pizza Margherita', 3800, 15, 'Pizzas', 'Clásicas', 'pizza_margherita.jpg', 'Pizza con muzzarella, tomate y albahaca', true, 1),
-('Pizza Napolitana', 4200, 12, 'Pizzas', 'Especiales', 'pizza_napolitana.jpg', 'Pizza con muzzarella, jamón, tomate y aceitunas', true, 1),
-('Hamburguesa Clásica', 2800, 25, 'Hamburguesas', 'Carne', 'hamburguesa_clasica.jpg', 'Hamburguesa con carne, lechuga, tomate y queso', true, 1),
-('Hamburguesa Doble', 3500, 18, 'Hamburguesas', 'Carne', 'hamburguesa_doble.jpg', 'Hamburguesa doble carne con todos los aderezos', true, 1),
-('Pollo a la parrilla', 3200, 30, 'Carnes', 'Pollo', 'pollo_parrilla.jpg', 'Pechuga de pollo a la parrilla con guarnición', true, 1),
-('Milanesa de ternera', 2900, 22, 'Carnes', 'Ternera', 'milanesa_ternera.jpg', 'Milanesa de ternera con papas fritas', true, 1),
-('Ensalada César', 1800, 35, 'Ensaladas', 'Verdes', 'ensalada_cesar.jpg', 'Lechuga, crutones, parmesano y aderezo César', true, 1),
-('Coca Cola 500ml', 800, 50, 'Bebidas', 'Gaseosas', 'coca_cola.jpg', 'Coca Cola regular 500ml', true, 1),
-('Agua Mineral 500ml', 500, 60, 'Bebidas', 'Aguas', 'agua_mineral.jpg', 'Agua mineral sin gas 500ml', true, 1),
-('Helado de Vainilla', 1200, 40, 'Postres', 'Helados', 'helado_vainilla.jpg', 'Helado de vainilla con toppings', true, 1),
-('Tiramisú', 1500, 25, 'Postres', 'Tortas', 'tiramisu.jpg', 'Tiramisú casero con café y cacao', true, 1);
+-- Insertar productos (sin subgrupos, imágenes ni cantidad)
+INSERT INTO producto (nombre, precio, grupo, descripcion, disponibilidad, id_usuario) VALUES
+('Pizza Muzzarella', 3500, 'Pizzas', 'Pizza tradicional con muzzarella y salsa de tomate', true, 1),
+('Pizza Margherita', 3800, 'Pizzas', 'Pizza con muzzarella, tomate y albahaca', true, 1),
+('Pizza Napolitana', 4200, 'Pizzas', 'Pizza con muzzarella, jamón, tomate y aceitunas', true, 1),
+('Hamburguesa Clásica', 2800, 'Hamburguesas', 'Hamburguesa con carne, lechuga, tomate y queso', true, 1),
+('Hamburguesa Doble', 3500, 'Hamburguesas', 'Hamburguesa doble carne con todos los aderezos', true, 1),
+('Pollo a la parrilla', 3200, 'Carnes', 'Pechuga de pollo a la parrilla con guarnición', true, 1),
+('Milanesa de ternera', 2900, 'Carnes', 'Milanesa de ternera con papas fritas', true, 1),
+('Ensalada César', 1800, 'Ensaladas', 'Lechuga, crutones, parmesano y aderezo César', true, 1),
+('Coca Cola 500ml', 800, 'Bebidas', 'Coca Cola regular 500ml', true, 1),
+('Agua Mineral 500ml', 500, 'Bebidas', 'Agua mineral sin gas 500ml', true, 1),
+('Helado de Vainilla', 1200, 'Postres', 'Helado de vainilla con toppings', true, 1),
+('Tiramisú', 1500, 'Postres', 'Tiramisú casero con café y cacao', true, 1);
 
 -- Insertar clientes
 INSERT INTO cliente (nombre, apellido, direccion, telefono) VALUES
@@ -27,8 +27,12 @@ INSERT INTO cliente (nombre, apellido, direccion, telefono) VALUES
 ('Roberto', 'Fernández', 'Av. Rivadavia 654, CABA', '11-5678-9012');
 
 -- Insertar parámetros web
-INSERT INTO parametro_web (estado, mensaje, barrido) VALUES
-(true, 'Carta disponible', '¡Promo especial! 2x1 en pizzas los martes');
+INSERT INTO parametro_web (estado, mensaje, barrido, whatsapp_number) VALUES
+(true, 'Carta disponible', '¡Promo especial! 2x1 en pizzas los martes', '549349644787');
+
+-- Insertar información del restaurante
+INSERT INTO restaurantes (nombre_restaurante, direccion, instagram, horario_apertura, horario_cierre) VALUES
+('FrontRoti Pizza', 'Calle Principal 123, Ciudad', '@frontroti_pizza', '09:00', '22:00');
 
 -- Insertar carritos de ejemplo
 INSERT INTO carrito (fecha, cliente_id) VALUES

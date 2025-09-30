@@ -1,0 +1,701 @@
+/* Estilos del componente ResenasAutorizacion */
+.resenas-autorizacion-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Navegación por pestañas */
+.tabs-navigation {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid var(--border-color);
+  overflow-x: auto;
+}
+
+.tab-button {
+  background: none;
+  border: none;
+  padding: 1rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+
+.tab-button:hover {
+  color: var(--primary-color);
+}
+
+.tab-button.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+}
+
+/* Contenido de las pestañas */
+.tab-content {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.content-header h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+/* Filtros */
+.filters {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.filter-select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  background: var(--background-primary);
+  color: var(--text-primary);
+  min-width: 150px;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* Grid de reseñas */
+.resenas-grid {
+  display: grid;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.resena-card {
+  background: var(--background-primary);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+}
+
+.resena-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.resena-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.resena-info {
+  flex: 1;
+}
+
+.cliente-nombre {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 0.5rem 0;
+}
+
+.producto-nombre {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.rating-display {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rating-number {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.resena-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  min-width: 120px;
+}
+
+.fecha {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* Contenido de la reseña */
+.resena-content {
+  margin-bottom: 1.5rem;
+}
+
+.comentario {
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 0 0 1rem 0;
+}
+
+.respuesta {
+  background: var(--background-secondary);
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid var(--primary-color);
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.respuesta strong {
+  color: var(--primary-color);
+}
+
+/* Acciones de reseña */
+.resena-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btn-success,
+.btn-danger,
+.btn-secondary,
+.btn-info {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-success {
+  background: var(--success-color);
+  color: white;
+}
+
+.btn-success:hover {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+.btn-danger {
+  background: var(--error-color);
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: var(--secondary-color);
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #5a6c7d;
+  transform: translateY(-1px);
+}
+
+.btn-info {
+  background: var(--primary-color);
+  color: white;
+}
+
+.btn-info:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+/* Tabla de autorizaciones */
+.table-container {
+  background: var(--background-primary);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th {
+  background: var(--background-secondary);
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.data-table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.data-table tr:hover {
+  background: var(--background-secondary);
+}
+
+/* Badges de tipo y estado */
+.tipo-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.tipo-descuento {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success-color);
+}
+
+.tipo-reembolso {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--error-color);
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.status-success {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success-color);
+}
+
+.status-warning {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--warning-color);
+}
+
+.status-danger {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--error-color);
+}
+
+/* Botones de acción en tabla */
+.action-btn {
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  margin-right: 0.5rem;
+  font-size: 1rem;
+}
+
+.action-btn:hover {
+  background: var(--background-secondary);
+}
+
+.success-btn:hover {
+  color: var(--success-color);
+}
+
+.danger-btn:hover {
+  color: var(--error-color);
+}
+
+.info-btn:hover {
+  color: var(--primary-color);
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: var(--background-primary);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+  background: var(--background-secondary);
+  color: var(--text-primary);
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-body p {
+  margin: 0 0 1rem 0;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+}
+
+.modal-body strong {
+  color: var(--primary-color);
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  background: var(--background-primary);
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .tabs-navigation {
+    flex-wrap: wrap;
+  }
+  
+  .tab-button {
+    padding: 0.75rem 1rem;
+    font-size: 0.8rem;
+  }
+  
+  .content-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .filters {
+    width: 100%;
+  }
+  
+  .filter-select {
+    min-width: 120px;
+    flex: 1;
+  }
+  
+  .resena-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .resena-meta {
+    align-items: flex-start;
+    min-width: auto;
+  }
+  
+  .resena-actions {
+    justify-content: flex-start;
+  }
+  
+  .data-table {
+    font-size: 0.8rem;
+  }
+  
+  .data-table th,
+  .data-table td {
+    padding: 0.75rem 0.5rem;
+  }
+  
+  .modal-content {
+    margin: 1rem;
+    max-height: calc(100vh - 2rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .filters {
+    flex-direction: column;
+  }
+  
+  .filter-select {
+    min-width: auto;
+  }
+  
+  .data-table {
+    font-size: 0.75rem;
+  }
+  
+  .data-table th,
+  .data-table td {
+    padding: 0.5rem 0.25rem;
+  }
+  
+  .resena-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .btn-success,
+  .btn-danger,
+  .btn-secondary,
+  .btn-info {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Estados de hover y focus */
+.tab-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.action-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* Transiciones suaves */
+.resenas-autorizacion-container * {
+  transition: all 0.2s ease;
+}
+
+/* Mejoras para modo oscuro */
+.dark-theme .tab-button {
+  border-bottom-color: var(--border-color);
+}
+
+.dark-theme .tab-button:hover {
+  background-color: rgba(129, 140, 248, 0.1);
+}
+
+.dark-theme .tab-button.active {
+  background-color: rgba(129, 140, 248, 0.15);
+  border-bottom-color: var(--primary-color);
+}
+
+.dark-theme .resena-card {
+  border: 1px solid var(--border-color);
+}
+
+.dark-theme .resena-card:hover {
+  border-color: var(--primary-color);
+  background-color: var(--background-secondary);
+}
+
+.dark-theme .data-table th {
+  background-color: var(--background-secondary);
+  border-color: var(--border-color);
+}
+
+.dark-theme .data-table td {
+  border-color: var(--border-color);
+}
+
+.dark-theme .data-table tr:hover {
+  background-color: var(--background-secondary);
+}
+
+.dark-theme .modal-content {
+  background-color: var(--background-primary);
+  border-color: var(--border-color);
+}
+
+.dark-theme .modal-header {
+  border-bottom-color: var(--border-color);
+}
+
+.dark-theme .modal-footer {
+  border-top-color: var(--border-color);
+}
+
+/* Mejoras adicionales para modo oscuro */
+.dark-theme .data-table {
+  background-color: var(--background-primary);
+}
+
+.dark-theme .data-table tr:nth-child(even) {
+  background-color: var(--background-secondary);
+}
+
+.dark-theme .data-table tr:hover {
+  background-color: var(--background-tertiary);
+}
+
+.dark-theme .resena-card {
+  background-color: var(--background-primary);
+}
+
+.dark-theme .respuesta {
+  background-color: var(--background-secondary);
+}
+
+/* Estilos para scrollbars en modo oscuro */
+.dark-theme .table-container::-webkit-scrollbar-track {
+  background: var(--background-secondary);
+}
+
+.dark-theme .table-container::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+}
+
+.dark-theme .table-container::-webkit-scrollbar-thumb:hover {
+  background: var(--border-hover);
+}
+
+/* Mejoras para badges y estados en modo oscuro */
+.dark-theme .tipo-badge,
+.dark-theme .status-badge {
+  border: 1px solid var(--border-color);
+}
+
+.dark-theme .tipo-descuento {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: var(--success-color);
+}
+
+.dark-theme .tipo-reembolso {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: var(--error-color);
+}
+
+.dark-theme .status-success {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: var(--success-color);
+}
+
+.dark-theme .status-warning {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: var(--warning-color);
+}
+
+.dark-theme .status-danger {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: var(--error-color);
+}
