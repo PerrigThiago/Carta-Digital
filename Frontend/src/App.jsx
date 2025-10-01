@@ -27,11 +27,17 @@ function AppContent() {
 
   return (
     <Routes>
-      {/* Ruta pública para la carta digital */}
+      {/* Ruta principal - Carta Digital */}
+      <Route path="/" element={<CartaDigital />} />
+      
+      {/* Ruta alternativa para la carta digital */}
       <Route path="/carta" element={<CartaDigital />} />
       
+      {/* Ruta de login */}
+      <Route path="/login" element={<Login />} />
+      
       {/* Rutas protegidas para el admin */}
-      <Route path="/*" element={
+      <Route path="/admin/*" element={
         isAuthenticated && user ? <Dashboard /> : <Login />
       } />
     </Routes>

@@ -240,15 +240,19 @@ export const apiClient = {
       throw new Error(errorMessage);
     }
 
-    // Intentar parsear como JSON, si falla devolver texto
+    // Leer el cuerpo una sola vez como texto y luego intentar parsear a JSON
+    const rawText = await response.text();
+    if (!rawText || rawText.trim() === '') {
+      console.log('PUT Success: Empty body');
+      return { success: true };
+    }
     try {
-      const jsonResponse = await response.json();
+      const jsonResponse = JSON.parse(rawText);
       console.log('PUT Success JSON:', jsonResponse);
       return jsonResponse;
     } catch (e) {
-      const textResponse = await response.text();
-      console.log('PUT Success Text:', textResponse);
-      return textResponse;
+      console.log('PUT Success Text:', rawText);
+      return rawText;
     }
   },
 

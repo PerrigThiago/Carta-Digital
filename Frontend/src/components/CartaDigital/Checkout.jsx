@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { webConfigService } from '../../services/webConfigService';
 import './Checkout.css';
 
 const Checkout = ({ 
@@ -15,6 +16,8 @@ const Checkout = ({
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
+  const [whatsappLink, setWhatsappLink] = useState(null);
+  const [pedidoId, setPedidoId] = useState(null);
 
   const formatPrice = (price) => {
     return `$${price?.toLocaleString() || '0'}`;
@@ -26,6 +29,60 @@ const Checkout = ({
       ...prev,
       [name]: value
     }));
+  };
+
+  const generarEnlaceWhatsApp = async (pedidoId) => {
+    try {
+      console.log('=== GENERANDO ENLACE DE WHATSAPP ===');
+      console.log('ID del pedido:', pedidoId);
+      
+      // Obtener número de WhatsApp configurado
+      let whatsappNumber;
+      try {
+        whatsappNumber = await webConfigService.getWhatsappNumber();
+        console.log('Número de WhatsApp obtenido:', whatsappNumber);
+      } catch (apiError) {
+        console.error('Error al obtener número de WhatsApp desde la API:', apiError);
+        // Usar número por defecto si la API falla
+        whatsappNumber = '543496447857';
+        console.log('Usando número por defecto:', whatsappNumber);
+      }
+
+      if (!whatsappNumber || whatsappNumber.trim() === '') {
+        console.warn('No hay número de WhatsApp configurado');
+        whatsappNumber = '543496447857';
+      }
+
+      // Limpiar el número (eliminar espacios, guiones, etc)
+      whatsappNumber = whatsappNumber.replace(/\D/g, '');
+      console.log('Número de WhatsApp limpio:', whatsappNumber);
+
+      // Obtener el mensaje del pedido desde el backend
+      console.log('Solicitando mensaje al backend...');
+      const response = await fetch(`http://localhost:8080/api/pedidos/${pedidoId}/mensaje-whatsapp`);
+      console.log('Respuesta del backend:', response.status, response.statusText);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Error del backend:', errorText);
+        throw new Error(`No se pudo obtener el mensaje del pedido: ${response.status} - ${errorText}`);
+      }
+
+      const mensaje = await response.text();
+      console.log('Mensaje obtenido del backend:', mensaje);
+      
+      // Crear URL de WhatsApp
+      const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(mensaje)}`;
+      console.log('URL de WhatsApp generada:', whatsappUrl);
+      
+      setWhatsappLink(whatsappUrl);
+      console.log('=== ENLACE DE WHATSAPP GENERADO ===');
+      
+    } catch (error) {
+      console.error('Error generando enlace WhatsApp:', error);
+      console.error('Detalles completos del error:', error.message, error.stack);
+      alert(`Error al generar enlace de WhatsApp: ${error.message}`);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -53,6 +110,11 @@ const Checkout = ({
         }))
       };
 
+      console.log('=== ENVIANDO PEDIDO ===');
+      console.log('URL:', 'http://localhost:8080/api/pedidos/crear-desde-carta');
+      console.log('Datos:', pedidoData);
+      console.log('JSON:', JSON.stringify(pedidoData));
+
       // Llamar a la API para crear el pedido
       const response = await fetch('http://localhost:8080/api/pedidos/crear-desde-carta', {
         method: 'POST',
@@ -63,19 +125,21 @@ const Checkout = ({
       });
 
       if (!response.ok) {
-        throw new Error('Error al crear el pedido');
+        const errorText = await response.text();
+        console.error('Error del backend:', response.status, errorText);
+        throw new Error(`Error al crear el pedido: ${response.status} - ${errorText}`);
       }
 
       const result = await response.json();
       console.log('Pedido creado:', result);
+
+      // Guardar ID del pedido
+      setPedidoId(result.pedidoId);
+      
+      // Generar enlace de WhatsApp
+      await generarEnlaceWhatsApp(result.pedidoId);
       
       setOrderSuccess(true);
-      
-      // Limpiar el carrito después de 3 segundos
-      setTimeout(() => {
-        onOrderComplete();
-        onBackToMenu();
-      }, 3000);
       
     } catch (error) {
       console.error('Error al procesar el pedido:', error);
@@ -91,12 +155,56 @@ const Checkout = ({
         <div className="success-screen">
           <div className="success-icon">✅</div>
           <h2>¡Pedido Confirmado!</h2>
-          <p>Tu pedido ha sido enviado al restaurante</p>
-          <p>Te contactaremos pronto para confirmar los detalles</p>
+          <p>Tu pedido #{pedidoId} ha sido creado exitosamente</p>
           <div className="order-details">
             <p><strong>Total:</strong> {formatPrice(totalPrice)}</p>
-            <p><strong>Contacto:</strong> WhatsApp</p>
           </div>
+          
+          {whatsappLink ? (
+            <div className="whatsapp-section">
+              <p style={{ marginTop: '20px', marginBottom: '15px' }}>
+                Haz clic en el botón para enviar tu pedido por WhatsApp:
+              </p>
+              <a 
+                href={whatsappLink} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="whatsapp-button"
+                style={{
+                  display: 'inline-block',
+                  backgroundColor: '#25D366',
+                  color: 'white',
+                  padding: '12px 24px',
+                  borderRadius: '8px',
+                  textDecoration: 'none',
+                  fontWeight: 'bold',
+                  fontSize: '16px',
+                  marginBottom: '20px'
+                }}
+              >
+                📱 Enviar pedido por WhatsApp
+              </a>
+            </div>
+          ) : (
+            <p style={{ marginTop: '20px' }}>Generando enlace de WhatsApp...</p>
+          )}
+          
+          <button 
+            onClick={() => {
+              onOrderComplete();
+              onBackToMenu();
+            }}
+            style={{
+              marginTop: '20px',
+              padding: '10px 20px',
+              backgroundColor: '#f0f0f0',
+              border: 'none',
+              borderRadius: '5px',
+              cursor: 'pointer'
+            }}
+          >
+            Volver al Menú
+          </button>
         </div>
       </div>
     );

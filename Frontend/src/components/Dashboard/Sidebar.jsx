@@ -1,7 +1,9 @@
 import React from 'react';
+import { useRestaurant } from '../../hooks/useRestaurant';
 import './Sidebar.css';
 
 const Sidebar = ({ activeTab, onTabChange, onLogout, user }) => {
+  const { restaurantInfo } = useRestaurant();
   const menuItems = [
     {
       id: 'menu',
@@ -34,7 +36,7 @@ const Sidebar = ({ activeTab, onTabChange, onLogout, user }) => {
       <div className="sidebar-header">
         <div className="logo">
           <span className="logo-icon">🍕</span>
-          <h2 className="logo-text">FrontRoti</h2>
+          <h2 className="logo-text">{restaurantInfo.nombreRestaurante}</h2>
         </div>
         <div className="user-profile">
           <div className="user-avatar">

@@ -1,6 +1,25 @@
 import { apiClient } from '../utils/auth';
 
 export const webConfigService = {
+  // WhatsApp number helpers
+  getWhatsappNumber: async () => {
+    try {
+      return await apiClient.get('/parametros/whatsapp-number');
+    } catch (error) {
+      console.error('Error obteniendo whatsappNumber:', error);
+      throw error;
+    }
+  },
+
+  updateWhatsappNumber: async (number) => {
+    try {
+      // Enviamos como query param para coincidir con el backend (@RequestParam)
+      return await apiClient.put(`/parametros/whatsapp-number?number=${encodeURIComponent(number)}`, {});
+    } catch (error) {
+      console.error('Error actualizando whatsappNumber:', error);
+      throw error;
+    }
+  },
   // Obtener todos los parámetros web
   getAllWebParams: async () => {
     try {
@@ -69,6 +88,68 @@ export const webConfigService = {
       return params.filter(param => param.grupo === group);
     } catch (error) {
       console.error('Error obteniendo parámetros por grupo:', error);
+      throw error;
+    }
+  },
+
+  // ===== FUNCIONES DE RESTAURANTE =====
+  
+  // Obtener toda la información del restaurante
+  getRestaurantInfo: async () => {
+    try {
+      return await apiClient.get('/restaurante/info');
+    } catch (error) {
+      console.error('Error obteniendo información del restaurante:', error);
+      throw error;
+    }
+  },
+
+  // Actualizar toda la información del restaurante
+  updateRestaurantInfo: async (restaurantData) => {
+    try {
+      return await apiClient.put('/restaurante/info', restaurantData);
+    } catch (error) {
+      console.error('Error actualizando información del restaurante:', error);
+      throw error;
+    }
+  },
+
+  // Obtener solo el nombre del restaurante
+  getRestaurantName: async () => {
+    try {
+      return await apiClient.get('/restaurante/nombre');
+    } catch (error) {
+      console.error('Error obteniendo nombre del restaurante:', error);
+      throw error;
+    }
+  },
+
+  // Obtener solo la dirección del restaurante
+  getRestaurantAddress: async () => {
+    try {
+      return await apiClient.get('/restaurante/direccion');
+    } catch (error) {
+      console.error('Error obteniendo dirección del restaurante:', error);
+      throw error;
+    }
+  },
+
+  // Obtener solo el Instagram del restaurante
+  getRestaurantInstagram: async () => {
+    try {
+      return await apiClient.get('/restaurante/instagram');
+    } catch (error) {
+      console.error('Error obteniendo Instagram del restaurante:', error);
+      throw error;
+    }
+  },
+
+  // Obtener los horarios del restaurante
+  getRestaurantHours: async () => {
+    try {
+      return await apiClient.get('/restaurante/horarios');
+    } catch (error) {
+      console.error('Error obteniendo horarios del restaurante:', error);
       throw error;
     }
   }

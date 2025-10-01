@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { webConfigService } from '../../services/webConfigService';
 import './ConfiguracionesWeb.css';
 
 const ConfiguracionesWeb = () => {
@@ -10,10 +11,10 @@ const ConfiguracionesWeb = () => {
   const defaultConfigData = {
     nombreRestaurante: 'FrontRoti Pizza',
     direccion: 'Calle Principal 123, Ciudad',
-    telefono: '+1 234 567 8900',
-    email: 'info@frontroti.com',
+    instagram: '@frontroti_pizza',
     horarioApertura: '09:00',
-    horarioCierre: '22:00'
+    horarioCierre: '22:00',
+    whatsappNumber: '549349644787'
   };
 
   const [configData, setConfigData] = useState(defaultConfigData);
@@ -44,8 +45,45 @@ const ConfiguracionesWeb = () => {
 
   // Cargar datos al inicializar el componente
   useEffect(() => {
-    const savedConfig = loadConfigFromStorage();
-    setConfigData(savedConfig);
+    const loadData = async () => {
+      try {
+        // Cargar información del restaurante desde la API
+        const restaurantInfo = await webConfigService.getRestaurantInfo();
+        console.log('Información del restaurante cargada:', restaurantInfo);
+        
+        // Cargar número de WhatsApp desde la API
+        const whatsappNumber = await webConfigService.getWhatsappNumber();
+        console.log('Número de WhatsApp cargado:', whatsappNumber);
+        
+        // Actualizar el estado con los datos de la API
+        setConfigData({
+          nombreRestaurante: restaurantInfo.nombreRestaurante || defaultConfigData.nombreRestaurante,
+          direccion: restaurantInfo.direccion || defaultConfigData.direccion,
+          instagram: restaurantInfo.instagram || defaultConfigData.instagram,
+          horarioApertura: restaurantInfo.horarioApertura || defaultConfigData.horarioApertura,
+          horarioCierre: restaurantInfo.horarioCierre || defaultConfigData.horarioCierre,
+          whatsappNumber: whatsappNumber || defaultConfigData.whatsappNumber
+        });
+        
+        // Guardar en localStorage como backup
+        saveConfigToStorage({
+          nombreRestaurante: restaurantInfo.nombreRestaurante || defaultConfigData.nombreRestaurante,
+          direccion: restaurantInfo.direccion || defaultConfigData.direccion,
+          instagram: restaurantInfo.instagram || defaultConfigData.instagram,
+          horarioApertura: restaurantInfo.horarioApertura || defaultConfigData.horarioApertura,
+          horarioCierre: restaurantInfo.horarioCierre || defaultConfigData.horarioCierre,
+          whatsappNumber: whatsappNumber || defaultConfigData.whatsappNumber
+        });
+        
+      } catch (error) {
+        console.warn('Error cargando datos desde la API, usando localStorage:', error);
+        // Fallback a localStorage si la API falla
+        const savedConfig = loadConfigFromStorage();
+        setConfigData(savedConfig);
+      }
+    };
+    
+    loadData();
   }, []);
 
 
@@ -67,14 +105,10 @@ const ConfiguracionesWeb = () => {
       errors.push('La dirección es requerida');
     }
     
-    if (!configData.telefono.trim()) {
-      errors.push('El teléfono es requerido');
-    }
-    
-    if (!configData.email.trim()) {
-      errors.push('El email es requerido');
-    } else if (!/\S+@\S+\.\S+/.test(configData.email)) {
-      errors.push('El email no tiene un formato válido');
+    if (!configData.instagram.trim()) {
+      errors.push('El Instagram es requerido');
+    } else if (!/^@?[a-zA-Z0-9._]+$/.test(configData.instagram.trim())) {
+      errors.push('El Instagram no tiene un formato válido (ej: @usuario o usuario)');
     }
     
     if (!configData.horarioApertura) {
@@ -89,6 +123,14 @@ const ConfiguracionesWeb = () => {
       if (configData.horarioApertura >= configData.horarioCierre) {
         errors.push('El horario de apertura debe ser anterior al horario de cierre');
       }
+    }
+
+    // Validar WhatsApp en formato internacional sin símbolos
+    if (configData.whatsappNumber && /\D/.test(configData.whatsappNumber)) {
+      errors.push('El número de WhatsApp debe contener solo dígitos (formato internacional)');
+    }
+    if (configData.whatsappNumber && configData.whatsappNumber.length < 8) {
+      errors.push('El número de WhatsApp parece demasiado corto');
     }
     
     return errors;
@@ -107,26 +149,46 @@ const ConfiguracionesWeb = () => {
     setSaveMessage('');
 
     try {
-      // Simular llamada al backend
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Preparar datos del restaurante (sin whatsappNumber)
+      const restaurantData = {
+        nombreRestaurante: configData.nombreRestaurante,
+        direccion: configData.direccion,
+        instagram: configData.instagram,
+        horarioApertura: configData.horarioApertura,
+        horarioCierre: configData.horarioCierre
+      };
       
-      // Guardar en localStorage para persistencia
+      // Guardar información del restaurante en la API
+      await webConfigService.updateRestaurantInfo(restaurantData);
+      console.log('Información del restaurante guardada:', restaurantData);
+      
+      // Guardar en localStorage como backup
       saveConfigToStorage(configData);
-      
-      // Aquí iría la lógica real para guardar en el backend
-      console.log('Guardando configuración:', configData);
       
       setSaveMessage('✅ Configuración guardada exitosamente');
       setTimeout(() => setSaveMessage(''), 3000);
+      pushToast('success', 'Configuración guardada correctamente');
       
     } catch (error) {
-      console.error('Error al guardar:', error);
+      console.error('Error al guardar configuración:', error);
       setSaveMessage('❌ Error al guardar la configuración');
       setTimeout(() => setSaveMessage(''), 5000);
+      pushToast('error', 'Error al guardar la configuración');
     } finally {
       setIsSaving(false);
     }
   };
+
+  const [toasts, setToasts] = useState([]);
+
+  const pushToast = (type, message) => {
+    const id = Date.now() + Math.random();
+    setToasts(prev => [...prev, { id, type, message }]);
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id));
+    }, 3000);
+  };
+
 
   const handleBackup = () => {
     console.log('Creando backup del sistema');
@@ -150,6 +212,15 @@ const ConfiguracionesWeb = () => {
 
   return (
     <div className="configuraciones-web-container">
+      {/* Toasts */}
+      <div className="toast-container">
+        {toasts.map(t => (
+          <div key={t.id} className={`toast ${t.type}`}>
+            <span>{t.message}</span>
+            <button className="toast-close" onClick={() => setToasts(prev => prev.filter(x => x.id !== t.id))}>✕</button>
+          </div>
+        ))}
+      </div>
       {/* Tabs de navegación */}
       <div className="tabs-navigation">
         <button 
@@ -199,21 +270,27 @@ const ConfiguracionesWeb = () => {
               </div>
               
               <div className="form-row">
-                <div className="form-group">
-                  <label>Teléfono</label>
+                <div className="form-group" style={{ flex: 1, marginRight: '10px' }}>
+                  <label>Instagram</label>
                   <input
-                    type="tel"
-                    value={configData.telefono}
-                    onChange={(e) => handleConfigChange('telefono', e.target.value)}
+                    type="text"
+                    value={configData.instagram}
+                    onChange={(e) => handleConfigChange('instagram', e.target.value)}
+                    placeholder="@usuario_o_nombre"
                     className="form-control"
                   />
                 </div>
-                <div className="form-group">
-                  <label>Email</label>
+
+                <div className="form-group" style={{ flex: 1, marginLeft: '10px' }}>
+                  <label>Número de WhatsApp (formato internacional, solo dígitos)</label>
                   <input
-                    type="email"
-                    value={configData.email}
-                    onChange={(e) => handleConfigChange('email', e.target.value)}
+                    type="tel"
+                    value={configData.whatsappNumber}
+                    onChange={(e) => {
+                      const digitsOnly = e.target.value.replace(/\D/g, '');
+                      handleConfigChange('whatsappNumber', digitsOnly);
+                    }}
+                    placeholder="Ej: 549349644787 (con 9 inicial)"
                     className="form-control"
                   />
                 </div>
