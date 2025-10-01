@@ -1,0 +1,12 @@
+# Variables de entorno para Railway MySQL
+# IMPORTANTE: Copia este archivo como .env y no subas .env al repositorio
+
+# Datos de conexión MySQL de Railway
+MYSQLHOST=mysql.railway.internal
+MYSQLPORT=3306
+MYSQLUSER=root
+MYSQLPASSWORD=jusdxDUspRiZSsvxGdHdKRiuxfGxBwBj
+MYSQLDATABASE=railway
+
+# Nota: Estos son los datos reales de tu Railway MySQL
+# Para desarrollo local, crea un archivo .env con estos valores
