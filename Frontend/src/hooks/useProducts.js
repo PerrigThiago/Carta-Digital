@@ -14,13 +14,15 @@ export const useProducts = () => {
       setLoading(true);
       setError(null);
       
-      // Obtener productos disponibles
-      const availableProducts = await productService.getAvailableProducts();
-      setProducts(availableProducts);
-      setFilteredProducts(availableProducts);
+      // Obtener TODOS los productos (para el dashboard admin)
+      const allProducts = await productService.getAllProducts();
+      console.log('Productos cargados:', allProducts);
+      setProducts(allProducts);
+      setFilteredProducts(allProducts);
       
       // Extraer categorías únicas
-      const uniqueCategories = [...new Set(availableProducts.map(p => p.grupo))];
+      const uniqueCategories = [...new Set(allProducts.map(p => p.grupo))].filter(Boolean);
+      console.log('Categorías encontradas:', uniqueCategories);
       setCategories(uniqueCategories);
       
     } catch (err) {
@@ -31,33 +33,96 @@ export const useProducts = () => {
     }
   };
 
-  // Funciones mock para compatibilidad con Menu.jsx
+  // Crear producto
   const createProduct = async (productData) => {
-    console.log('createProduct called:', productData);
-    return { success: true };
+    try {
+      console.log('Creando producto:', productData);
+      setLoading(true);
+      await productService.createProduct(productData);
+      await loadProducts(); // Recargar productos después de crear
+      return { success: true };
+    } catch (err) {
+      console.error('Error al crear producto:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // Actualizar producto
   const updateProduct = async (id, productData) => {
-    console.log('updateProduct called:', id, productData);
-    return { success: true };
+    try {
+      console.log('Actualizando producto:', id, productData);
+      setLoading(true);
+      await productService.updateProduct(id, productData);
+      await loadProducts(); // Recargar productos después de actualizar
+      return { success: true };
+    } catch (err) {
+      console.error('Error al actualizar producto:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // Eliminar producto
   const deleteProduct = async (id) => {
-    console.log('deleteProduct called:', id);
-    return { success: true };
+    try {
+      console.log('Eliminando producto:', id);
+      setLoading(true);
+      await productService.deleteProduct(id);
+      await loadProducts(); // Recargar productos después de eliminar
+      return { success: true };
+    } catch (err) {
+      console.error('Error al eliminar producto:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // Eliminar categoría
   const deleteCategory = async (category) => {
-    console.log('deleteCategory called:', category);
-    return { success: true };
+    try {
+      console.log('Eliminando categoría:', category);
+      setLoading(true);
+      await productService.deleteCategory(category);
+      await loadProducts(); // Recargar productos después de eliminar categoría
+      return { success: true };
+    } catch (err) {
+      console.error('Error al eliminar categoría:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // Actualizar filtros
   const updateFilters = (filters) => {
-    console.log('updateFilters called:', filters);
+    console.log('Actualizando filtros:', filters);
+    
+    let filtered = [...products];
+    
+    // Filtrar por término de búsqueda
+    if (filters.searchTerm) {
+      filtered = filtered.filter(p => 
+        p.nombre.toLowerCase().includes(filters.searchTerm.toLowerCase())
+      );
+    }
+    
+    // Filtrar por grupo/categoría
+    if (filters.group) {
+      filtered = filtered.filter(p => p.grupo === filters.group);
+    }
+    
+    setFilteredProducts(filtered);
   };
 
+  // Limpiar filtros
   const clearFilters = () => {
-    console.log('clearFilters called');
+    console.log('Limpiando filtros');
+    setFilteredProducts(products);
+    setSearchTerm('');
   };
 
   const getUniqueGroups = () => {

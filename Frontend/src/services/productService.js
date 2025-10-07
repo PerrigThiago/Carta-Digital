@@ -85,5 +85,105 @@ export const productService = {
       console.error('Error en getProductStats:', error);
       throw error;
     }
+  },
+
+  // Crear producto
+  async createProduct(productData) {
+    try {
+      console.log('Creando producto:', productData);
+      const response = await fetch(`${API_BASE_URL}/api/productos`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(productData)
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Error al crear producto');
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error en createProduct:', error);
+      throw error;
+    }
+  },
+
+  // Actualizar producto
+  async updateProduct(id, productData) {
+    try {
+      console.log('Actualizando producto:', id, productData);
+      const response = await fetch(`${API_BASE_URL}/api/productos/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(productData)
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Error al actualizar producto');
+      }
+      
+      // Intentar parsear como JSON, si falla devolver texto
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        return await response.json();
+      } else {
+        return await response.text();
+      }
+    } catch (error) {
+      console.error('Error en updateProduct:', error);
+      throw error;
+    }
+  },
+
+  // Eliminar producto
+  async deleteProduct(id) {
+    try {
+      console.log('Eliminando producto:', id);
+      const response = await fetch(`${API_BASE_URL}/api/productos/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Error al eliminar producto');
+      }
+      
+      return { success: true, message: 'Producto eliminado correctamente' };
+    } catch (error) {
+      console.error('Error en deleteProduct:', error);
+      throw error;
+    }
+  },
+
+  // Eliminar categoría completa
+  async deleteCategory(categoryName) {
+    try {
+      console.log('Eliminando categoría:', categoryName);
+      const response = await fetch(`${API_BASE_URL}/api/productos/categoria/${encodeURIComponent(categoryName)}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Error al eliminar categoría');
+      }
+      
+      return { success: true, message: 'Categoría eliminada correctamente' };
+    } catch (error) {
+      console.error('Error en deleteCategory:', error);
+      throw error;
+    }
   }
 };
