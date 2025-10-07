@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
+import { useAuthContext } from '../../context/AuthContext';
 import './Login.css';
 
 const Login = () => {
-  const { login, isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
+  const { login, isAuthenticated, user } = useAuthContext();
   const [formData, setFormData] = useState({
     username: '',
     password: ''
@@ -19,10 +21,10 @@ const Login = () => {
       console.log('Usuario autenticado detectado:', user);
       console.log('Redirigiendo al dashboard...');
       
-      // Forzar un re-render del componente padre
-      window.location.reload();
+      // Navegar al dashboard sin recargar la página
+      navigate('/admin', { replace: true });
     }
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

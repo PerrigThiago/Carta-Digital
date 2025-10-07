@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './Menu.css';
 import { useProducts } from '../../hooks/useProducts';
+import ProductModal from './ProductModal';
+import DeleteModal from './DeleteModal';
 
 const Menu = () => {
   // Estados locales
@@ -17,6 +19,8 @@ const Menu = () => {
       return [];
     }
   });
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   // Hook de productos
   const { 
@@ -87,55 +91,26 @@ const Menu = () => {
     }
   };
 
-  // Función para agregar producto
-  const handleAddProduct = async () => {
-    const nombre = prompt('Nombre del producto:');
-    if (!nombre || nombre.trim() === '') {
-      alert('El nombre no puede estar vacío');
-      return;
-    }
-    
+  // Función para agregar producto desde el modal
+  const handleProductModalSubmit = async (productData) => {
     // Verificar si ya existe un producto con ese nombre
-    const nombreExistente = products.find(p => p.nombre.toLowerCase() === nombre.trim().toLowerCase());
+    const nombreExistente = products.find(p => p.nombre.toLowerCase() === productData.nombre.toLowerCase());
     if (nombreExistente) {
-      alert(`Ya existe un producto con el nombre "${nombre.trim()}". Elige otro nombre.`);
-      return;
-    }
-    
-    const precioStr = prompt('Precio del producto:');
-    const precio = Number(precioStr);
-    if (Number.isNaN(precio) || precio <= 0) {
-      alert('Precio inválido');
-      return;
-    }
-    
-    const grupo = prompt('Categoría del producto:');
-    if (!grupo || grupo.trim() === '') {
-      alert('La categoría no puede estar vacía');
-      return;
-    }
-    // Validar que la categoría exista en el desplegable
-    const cleanGroup = grupo.trim();
-    const allowedGroups = Array.from(new Set([...(getUniqueGroups ? getUniqueGroups() : []), ...extraCategories])).filter(Boolean);
-    if (!allowedGroups.includes(cleanGroup)) {
-      alert(`La categoría "${cleanGroup}" no existe. Primero crea la categoría y luego vuelve a intentarlo.`);
+      alert(`Ya existe un producto con el nombre "${productData.nombre}". Elige otro nombre.`);
       return;
     }
     
     try {
       const userId = getCurrentUserId();
-      const productData = { 
-        nombre: nombre.trim(), 
-        precio: Math.round(precio),
-        grupo: cleanGroup, 
+      const fullProductData = { 
+        ...productData,
         disponibilidad: true,
         usuario: { id: userId }
       };
-      console.log('Enviando datos del producto:', productData);
-      console.log('User ID:', userId);
-      await createProduct(productData);
+      console.log('Enviando datos del producto:', fullProductData);
+      await createProduct(fullProductData);
       
-      alert('Producto creado exitosamente');
+      alert('Producto creado exitosamente ✓');
     } catch (e) {
       console.error('Error creando producto:', e);
       alert(`Error al crear el producto: ${e.message || 'Error desconocido'}`);
@@ -203,79 +178,53 @@ const Menu = () => {
     }
   };
 
-  // Función para agregar categoría
-  const handleAddCategory = () => {
-    const nueva = prompt('Nombre de nueva categoría:');
-    if (nueva) {
-      const clean = nueva.trim();
-      if (!clean) return;
-      
-      // Verificar si la categoría ya existe (en categorías extra o en productos existentes)
-      const existingGroups = getUniqueGroups ? getUniqueGroups() : [];
-      const allExistingCategories = [...existingGroups, ...extraCategories];
-      
-      if (allExistingCategories.includes(clean)) {
-        alert(`La categoría "${clean}" ya existe. Elige otro nombre.`);
-        return;
-      }
-      
-      if (!extraCategories.includes(clean)) {
-        const updated = [...extraCategories, clean];
-        setExtraCategories(updated);
-        localStorage.setItem('extraCategories', JSON.stringify(updated));
-      }
-      alert(`Categoría "${clean}" creada. Asignala al crear/editar productos.`);
+  // Función para crear categoría (llamada desde el modal de producto)
+  const handleCreateCategory = (categoryName) => {
+    const clean = categoryName.trim();
+    if (!clean) return;
+    
+    // Verificar si la categoría ya existe
+    const existingGroups = getUniqueGroups ? getUniqueGroups() : [];
+    const allExistingCategories = [...existingGroups, ...extraCategories];
+    
+    if (allExistingCategories.includes(clean)) {
+      return; // Ya existe, no hacer nada
+    }
+    
+    if (!extraCategories.includes(clean)) {
+      const updated = [...extraCategories, clean];
+      setExtraCategories(updated);
+      localStorage.setItem('extraCategories', JSON.stringify(updated));
     }
   };
 
-  // Función para eliminar categoría
-  const handleDeleteCategory = async () => {
-    const uniqueGroups = Array.from(new Set([...(getUniqueGroups ? getUniqueGroups() : []), ...extraCategories])).filter(Boolean);
-    
-    if (uniqueGroups.length === 0) {
-      alert('No hay categorías para eliminar');
-      return;
-    }
-
-    const categoria = prompt(`Selecciona la categoría a eliminar:\n\n${uniqueGroups.map((g, i) => `${i + 1}. ${g}`).join('\n')}\n\nIngresa el número o nombre de la categoría:`);
-    
-    if (!categoria) return;
-
-    let categoriaSeleccionada = null;
-    
-    // Verificar si es un número
-    const numero = parseInt(categoria);
-    if (!isNaN(numero) && numero >= 1 && numero <= uniqueGroups.length) {
-      categoriaSeleccionada = uniqueGroups[numero - 1];
-    } else {
-      // Verificar si es el nombre exacto
-      if (uniqueGroups.includes(categoria.trim())) {
-        categoriaSeleccionada = categoria.trim();
-      } else {
-        alert('Categoría no válida');
-        return;
-      }
-    }
-
-    // Confirmar eliminación
-    const confirmacion = confirm(`¿Estás seguro de que quieres eliminar la categoría "${categoriaSeleccionada}"?\n\nEsto eliminará TODOS los productos de esta categoría.`);
-    
-    if (!confirmacion) return;
-
+  // Función para eliminar categoría desde el modal
+  const handleDeleteCategoryFromModal = async (categoryName) => {
     try {
-      await deleteCategory(categoriaSeleccionada);
+      await deleteCategory(categoryName);
       
       // Remover de categorías extra si existe
-      if (extraCategories.includes(categoriaSeleccionada)) {
-        const updated = extraCategories.filter(c => c !== categoriaSeleccionada);
+      if (extraCategories.includes(categoryName)) {
+        const updated = extraCategories.filter(c => c !== categoryName);
         setExtraCategories(updated);
         localStorage.setItem('extraCategories', JSON.stringify(updated));
       }
       
-      alert(`Categoría "${categoriaSeleccionada}" y todos sus productos han sido eliminados`);
+      alert(`Categoría "${categoryName}" y todos sus productos han sido eliminados ✓`);
     } catch (e) {
       console.error('Error eliminando categoría:', e);
       alert(`Error al eliminar la categoría: ${e.message || 'Error desconocido'}`);
+    }
+  };
+
+  // Función para eliminar producto desde el modal
+  const handleDeleteProductFromModal = async (productId) => {
+    try {
+      await deleteProduct(productId);
+      alert('Producto eliminado exitosamente ✓');
+    } catch (e) {
+      console.error('Error eliminando producto:', e);
+      alert(`Error al eliminar: ${e.message || 'Error desconocido'}`);
     }
   };
 
@@ -349,14 +298,21 @@ const Menu = () => {
 
         <div className="table-toolbar">
           <div className="toolbar-left">
-            <button title="Agregar producto" onClick={handleAddProduct} disabled={loading}>
+            <button 
+              className="btn-add-product" 
+              title="Agregar producto" 
+              onClick={() => setIsProductModalOpen(true)} 
+              disabled={loading}
+            >
               ➕ Producto
             </button>
-            <button title="Agregar categoría" onClick={handleAddCategory} disabled={loading}>
-            ➕📂 Categoría
-            </button>
-            <button title="Eliminar categoría" onClick={handleDeleteCategory} disabled={loading}>
-            🗑️📂 Eliminar Categoría
+            <button 
+              className="btn-delete" 
+              title="Eliminar producto o categoría" 
+              onClick={() => setIsDeleteModalOpen(true)} 
+              disabled={loading}
+            >
+              🗑️ Eliminar
             </button>
           </div>
 
@@ -494,6 +450,24 @@ const Menu = () => {
           </div>
         </div>
       </div>
+
+      {/* Modales */}
+      <ProductModal
+        isOpen={isProductModalOpen}
+        onClose={() => setIsProductModalOpen(false)}
+        onSubmit={handleProductModalSubmit}
+        existingCategories={uniqueGroups}
+        onCreateCategory={handleCreateCategory}
+      />
+      
+      <DeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onDeleteProduct={handleDeleteProductFromModal}
+        onDeleteCategory={handleDeleteCategoryFromModal}
+        products={products}
+        categories={uniqueGroups}
+      />
     </div>
   );
 };

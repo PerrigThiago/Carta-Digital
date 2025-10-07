@@ -851,6 +851,23 @@
   transform: none;
 }
 
+/* Estilos específicos para botones nuevos */
+.btn-add-product {
+  background: linear-gradient(135deg, #667eea, #764ba2) !important;
+}
+
+.btn-add-product:hover:not(:disabled) {
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4) !important;
+}
+
+.btn-delete {
+  background: linear-gradient(135deg, #f093fb, #f5576c) !important;
+}
+
+.btn-delete:hover:not(:disabled) {
+  box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4) !important;
+}
+
 /* ===== PASO 3: BARRA DE FILTROS MEJORADA ===== */
 .filters {
   display: flex;

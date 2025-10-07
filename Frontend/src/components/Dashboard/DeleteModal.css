@@ -1,0 +1,139 @@
+/* Usa los estilos base de ProductModal.css */
+@import './ProductModal.css';
+
+/* Estilos específicos para el modal de eliminar */
+.delete-modal {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.delete-header {
+  background: transparent;
+}
+
+.delete-type-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.type-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 15px;
+  border: 3px solid #e0e0e0;
+  background: white;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: center;
+}
+
+.type-btn:hover {
+  border-color: #f5576c;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(245, 87, 108, 0.2);
+}
+
+.type-btn.active {
+  border-color: #f5576c;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  box-shadow: 0 5px 20px rgba(245, 87, 108, 0.4);
+}
+
+.type-icon {
+  font-size: 35px;
+  transition: transform 0.3s;
+}
+
+.type-btn.active .type-icon {
+  transform: scale(1.2);
+}
+
+.type-label {
+  font-weight: 700;
+  font-size: 16px;
+  margin: 5px 0;
+}
+
+.type-description {
+  font-size: 12px;
+  opacity: 0.8;
+  line-height: 1.3;
+}
+
+.delete-preview {
+  margin-top: 15px;
+  padding: 15px;
+  background: #e3f2fd;
+  border-left: 4px solid #2196f3;
+  border-radius: 8px;
+}
+
+.delete-preview.danger {
+  background: #ffebee;
+  border-left-color: #f44336;
+}
+
+.preview-label {
+  display: block;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.preview-item {
+  display: block;
+  color: #555;
+  margin: 5px 0;
+  padding-left: 5px;
+}
+
+.preview-count {
+  display: inline-block;
+  background: #f44336;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-weight: 600;
+  font-size: 14px;
+  margin: 5px 0 10px 0;
+}
+
+.preview-list {
+  margin-top: 10px;
+}
+
+.btn-delete {
+  flex: 1;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+}
+
+.btn-delete:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+}
+
+.btn-delete:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .delete-type-selector {
+    grid-template-columns: 1fr;
+  }
+}
+
