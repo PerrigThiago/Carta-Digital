@@ -4,7 +4,6 @@ import { useTheme } from '../../context/ThemeContext';
 import Sidebar from './Sidebar';
 import Menu from './Menu';
 import HistorialRanking from './HistorialRanking';
-import ResenasAutorizacion from './ResenasAutorizacion';
 import ConfiguracionesWeb from './ConfiguracionesWeb';
 import './Dashboard.css';
 
@@ -12,6 +11,7 @@ const Dashboard = () => {
   const { user, logout } = useAuthContext();
   const { theme, changeTheme, isDark } = useTheme();
   const [activeTab, setActiveTab] = useState('menu');
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   // Función para renderizar el contenido según la pestaña activa
   const renderContent = () => {
@@ -20,8 +20,6 @@ const Dashboard = () => {
         return <Menu />;
       case 'historial':
         return <HistorialRanking />;
-      case 'resenas':
-        return <ResenasAutorizacion />;
       case 'configuraciones':
         return <ConfiguracionesWeb />;
       default:
@@ -34,6 +32,11 @@ const Dashboard = () => {
     logout();
   };
 
+  // Función para alternar el estado del sidebar
+  const toggleSidebar = () => {
+    setIsSidebarCollapsed(!isSidebarCollapsed);
+  };
+
   return (
     <div className="dashboard-container">
       <Sidebar 
@@ -41,14 +44,15 @@ const Dashboard = () => {
         onTabChange={setActiveTab}
         onLogout={handleLogout}
         user={user}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={toggleSidebar}
       />
-      <main className="dashboard-main">
+      <main className={`dashboard-main ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
         <header className="dashboard-header">
           <div className="header-content">
             <h1 className="page-title">
               {activeTab === 'menu' && 'Menú Principal'}
               {activeTab === 'historial' && 'Historial y Ranking'}
-              {activeTab === 'resenas' && 'Reseñas y Autorización'}
               {activeTab === 'configuraciones' && 'Configuraciones Web'}
             </h1>
             <div className="user-info">

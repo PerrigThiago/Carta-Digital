@@ -7,7 +7,6 @@ Este módulo proporciona un panel de control completo para la gestión del resta
 - ✅ **Dashboard principal** con estadísticas y acciones rápidas
 - ✅ **Barra lateral** con navegación completa
 - ✅ **Módulo de Historial y Ranking** con tablas y estadísticas
-- ✅ **Módulo de Reseñas y Autorización** para gestión de feedback
 - ✅ **Módulo de Configuraciones Web** para ajustes del sistema
 - ✅ **Sistema de autenticación** integrado
 - ✅ **Diseño responsive** para todos los dispositivos
@@ -25,8 +24,6 @@ src/components/Dashboard/
 ├── Menu.css                   # Estilos del menú
 ├── HistorialRanking.jsx       # Módulo de historial y ranking
 ├── HistorialRanking.css       # Estilos del historial
-├── ResenasAutorizacion.jsx    # Módulo de reseñas y autorizaciones
-├── ResenasAutorizacion.css    # Estilos de reseñas
 ├── ConfiguracionesWeb.jsx     # Módulo de configuraciones
 ├── ConfiguracionesWeb.css     # Estilos de configuraciones
 ├── index.js                   # Exportación del componente
@@ -37,7 +34,7 @@ src/components/Dashboard/
 
 ### 🏠 **Menú Principal**
 - Panel de bienvenida personalizado
-- Estadísticas en tiempo real (pedidos, ventas, clientes, reseñas)
+- Estadísticas en tiempo real (pedidos, ventas, clientes)
 - Acciones rápidas (nuevo pedido, ver menú, clientes, reportes)
 - Estado del sistema (online, base de datos, API)
 
@@ -46,12 +43,6 @@ src/components/Dashboard/
 - **Ranking de Productos**: Top 5 productos más vendidos con ratings
 - **Estadísticas Generales**: Métricas de rendimiento del negocio
 - Filtros avanzados y acciones en cada pedido
-
-### ⭐ **Reseñas y Autorización**
-- **Gestión de Reseñas**: Aprobación, rechazo y respuesta a comentarios
-- **Sistema de Autorizaciones**: Descuentos, reembolsos y aprobaciones
-- **Filtros por Rating**: Clasificación por estrellas (1-5)
-- **Modal de Edición**: Respuestas personalizadas a reseñas
 
 ### ⚙️ **Configuraciones Web**
 - **Configuración General**: Información del restaurante, horarios, moneda
@@ -136,11 +127,6 @@ GET /api/orders/history?status=&date=&page=
 
 // Estadísticas
 GET /api/stats/dashboard
-
-// Reseñas
-GET /api/reviews?status=&rating=
-POST /api/reviews/:id/approve
-POST /api/reviews/:id/reject
 
 // Configuraciones
 GET /api/settings

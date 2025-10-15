@@ -14,7 +14,6 @@ FrontRoti es una aplicación web moderna y completa para la gestión de restaura
 ### Dashboard Administrativo
 - ✅ **Menú Principal**: Estadísticas y acciones rápidas
 - ✅ **Historial y Ranking**: Gestión de pedidos y productos
-- ✅ **Reseñas y Autorización**: Moderación de comentarios y aprobaciones
 - ✅ **Configuraciones Web**: Ajustes del sistema y notificaciones
 
 ### Interfaz de Usuario
@@ -53,8 +52,6 @@ FrontRoti/
 │   │       ├── Menu.css           # Estilos del menú
 │   │       ├── HistorialRanking.jsx # Historial y ranking
 │   │       ├── HistorialRanking.css # Estilos del historial
-│   │       ├── ResenasAutorizacion.jsx # Reseñas y autorizaciones
-│   │       ├── ResenasAutorizacion.css # Estilos de reseñas
 │   │       ├── ConfiguracionesWeb.jsx # Configuraciones
 │   │       ├── ConfiguracionesWeb.css # Estilos de configuraciones
 │   │       └── index.js           # Exportación
@@ -124,11 +121,6 @@ npm run preview
 - **Historial de Pedidos**: Lista completa con filtros
 - **Ranking de Productos**: Top 5 más vendidos
 - **Estadísticas**: Métricas de negocio con indicadores de cambio
-
-### Reseñas y Autorización
-- **Gestión de Reseñas**: Aprobación, rechazo y edición
-- **Autorizaciones**: Descuentos, reembolsos y permisos
-- **Moderación**: Sistema completo de control de contenido
 
 ### Configuraciones Web
 - **Configuración General**: Información del restaurante

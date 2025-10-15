@@ -1,6 +1,7 @@
 /* Variables CSS del Dashboard */
 :root {
   --sidebar-width: 280px;
+  --sidebar-collapsed-width: 70px;
   --header-height: 70px;
 }
 
@@ -17,6 +18,11 @@
   margin-left: var(--sidebar-width);
   display: flex;
   flex-direction: column;
+  transition: margin-left 0.3s ease;
+}
+
+.dashboard-main.sidebar-collapsed {
+  margin-left: var(--sidebar-collapsed-width);
 }
 
 /* Header del Dashboard */

@@ -167,7 +167,6 @@ const HistorialRanking = () => {
                         </span>
                       </td>
                       <td>
-                        <button className="action-btn view-btn" title="Ver detalles">👁️</button>
                         <button className="action-btn edit-btn" title="Editar">✏️</button>
                       </td>
                     </tr>

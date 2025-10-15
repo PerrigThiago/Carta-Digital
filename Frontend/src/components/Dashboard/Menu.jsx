@@ -40,8 +40,7 @@ const Menu = () => {
   // Datos de ejemplo para las estadísticas
   const stats = [
     { label: 'Pedidos Hoy', value: '24', icon: '📦', color: 'blue' },
-    { label: 'Ventas del Mes', value: '$2,450', icon: '💰', color: 'green' },
-    { label: 'Reseñas', value: '4.8', icon: '⭐', color: 'orange' }
+    { label: 'Ventas del Mes', value: '$2,450', icon: '💰', color: 'green' }
   ];
 
   // Función para obtener el ID del usuario actual
@@ -407,13 +406,6 @@ const Menu = () => {
                     >
                       ✏️
                     </button>
-                    <button 
-                      title="Borrar" 
-                      onClick={() => handleRowDelete(product)} 
-                      disabled={loading}
-                    >
-                      🗑️
-                    </button>
                     </td>
                   </tr>
                 ))}
@@ -428,27 +420,6 @@ const Menu = () => {
             </button>
         </div>
       )}
-      </div>
-
-      {/* Información del sistema */}
-      <div className="system-info">
-        <div className="info-card">
-          <h4>Estado del Sistema</h4>
-          <div className="status-indicators">
-            <div className="status-item status-online">
-              <span className="status-dot"></span>
-              <span>Sistema Online</span>
-            </div>
-            <div className="status-item status-online">
-              <span className="status-dot"></span>
-              <span>Base de Datos Conectada</span>
-            </div>
-            <div className="status-item status-online">
-              <span className="status-dot"></span>
-              <span>API Funcionando</span>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Modales */}

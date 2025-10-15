@@ -40,6 +40,45 @@ export const useRestaurant = () => {
 
   useEffect(() => {
     loadRestaurantInfo();
+    
+    // Escuchar cambios en localStorage para actualizar en tiempo real
+    const handleStorageChange = () => {
+      try {
+        const savedConfig = localStorage.getItem('restaurantConfig');
+        if (savedConfig) {
+          const parsedConfig = JSON.parse(savedConfig);
+          setRestaurantInfo({
+            nombreRestaurante: parsedConfig.nombreRestaurante || 'FrontRoti Pizza',
+            direccion: parsedConfig.direccion || '',
+            instagram: parsedConfig.instagram || '',
+            horarioApertura: parsedConfig.horarioApertura || '09:00',
+            horarioCierre: parsedConfig.horarioCierre || '22:00'
+          });
+        }
+      } catch (error) {
+        console.error('Error al cargar config desde storage:', error);
+      }
+    };
+    
+    // Agregar listener para cambios en storage
+    window.addEventListener('storage', handleStorageChange);
+    
+    // También escuchar un evento personalizado para cambios en la misma pestaña
+    const handleConfigUpdate = (event) => {
+      if (event.detail) {
+        setRestaurantInfo(prev => ({
+          ...prev,
+          ...event.detail
+        }));
+      }
+    };
+    
+    window.addEventListener('restaurantConfigUpdated', handleConfigUpdate);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('restaurantConfigUpdated', handleConfigUpdate);
+    };
   }, []);
 
   return {

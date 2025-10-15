@@ -165,6 +165,11 @@ const ConfiguracionesWeb = () => {
       // Guardar en localStorage como backup
       saveConfigToStorage(configData);
       
+      // Disparar evento personalizado para actualizar otros componentes
+      window.dispatchEvent(new CustomEvent('restaurantConfigUpdated', {
+        detail: restaurantData
+      }));
+      
       setSaveMessage('✅ Configuración guardada exitosamente');
       setTimeout(() => setSaveMessage(''), 3000);
       pushToast('success', 'Configuración guardada correctamente');
